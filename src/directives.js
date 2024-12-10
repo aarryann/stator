@@ -1,7 +1,7 @@
 import { onAttributeRemoved, onElRemoved } from './mutation';
 import { evaluate, evaluateLater } from './evaluator';
 import { elementBoundEffect } from './reactivity';
-import Stator from './stator';
+import Alpine from './alpine';
 
 let prefixAsString = 'x-';
 
@@ -42,7 +42,7 @@ export function directives(el, attributes, originalAttributeOverride) {
 
     let staticAttributes = attributesOnly(vAttributes);
 
-    // Handle binding normal HTML attributes (non-paradigm directives).
+    // Handle binding normal HTML attributes (non-Alpine directives).
     vAttributes = vAttributes.map(attribute => {
       if (staticAttributes.find(attr => attr.name === attribute.name)) {
         return {
@@ -61,7 +61,7 @@ export function directives(el, attributes, originalAttributeOverride) {
 
   let directives = attributes
     .map(toTransformedAttributes((newName, oldName) => (transformedAttributeMap[newName] = oldName)))
-    .filter(outNonParadigmAttributes)
+    .filter(outNonAlpineAttributes)
     .map(toParsedDirectives(transformedAttributeMap, originalAttributeOverride))
     .sort(byPriority);
 
@@ -73,7 +73,7 @@ export function directives(el, attributes, originalAttributeOverride) {
 export function attributesOnly(attributes) {
   return Array.from(attributes)
     .map(toTransformedAttributes())
-    .filter(attr => !outNonParadigmAttributes(attr));
+    .filter(attr => !outNonAlpineAttributes(attr));
 }
 
 let isDeferringHandlers = false;
@@ -115,7 +115,7 @@ export function getElementBoundUtilities(el) {
   cleanups.push(cleanupEffect);
 
   let utilities = {
-    Stator,
+    Alpine,
     effect,
     cleanup,
     evaluateLater: evaluateLater.bind(evaluateLater, el),
@@ -182,15 +182,15 @@ export function mapAttributes(callback) {
   attributeTransformers.push(callback);
 }
 
-function outNonParadigmAttributes({ name }) {
-  return paradigmAttributeRegex().test(name);
+function outNonAlpineAttributes({ name }) {
+  return alpineAttributeRegex().test(name);
 }
 
-let paradigmAttributeRegex = () => new RegExp(`^${prefixAsString}([^:^.]+)\\b`);
+let alpineAttributeRegex = () => new RegExp(`^${prefixAsString}([^:^.]+)\\b`);
 
 function toParsedDirectives(transformedAttributeMap, originalAttributeOverride) {
   return ({ name, value }) => {
-    let typeMatch = name.match(paradigmAttributeRegex());
+    let typeMatch = name.match(alpineAttributeRegex());
     let valueMatch = name.match(/:([a-zA-Z0-9\-_:]+)/);
     let modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
     let original = originalAttributeOverride || transformedAttributeMap[name] || name;
