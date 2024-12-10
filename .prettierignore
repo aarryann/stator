@@ -1,0 +1,4 @@
+/static/*.min.css
+pnpm-lock.yaml
+dist
+node_modules
