@@ -1,4 +1,4 @@
-// Warning: The concept of "interceptors" in Alpine is not public API and is subject to change
+// Warning: The concept of "interceptors" in Stator is not public API and is subject to change
 // without tagging a major release.
 
 export function initInterceptors(data) {

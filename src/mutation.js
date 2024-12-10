@@ -78,7 +78,7 @@ export function flushObserver() {
     // flush in the current event loop. This way, we can process
     // all mutations in one batch at the end of everything...
     if (queuedMutations.length === queueLengthWhenTriggered) {
-      // Now Alpine can process all the mutations...
+      // Now Stator can process all the mutations...
       while (queuedMutations.length > 0) queuedMutations.shift()();
     }
   });
@@ -130,7 +130,7 @@ function onMutate(mutations) {
       mutations[i].removedNodes.forEach(node => {
         if (node.nodeType !== 1) return;
 
-        // No need to process removed nodes that haven't been initialized by Alpine...
+        // No need to process removed nodes that haven't been initialized by Stator...
         if (!node._x_marker) return;
 
         removedNodes.add(node);

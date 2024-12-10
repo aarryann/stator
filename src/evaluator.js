@@ -91,13 +91,13 @@ export function runIfTypeOfFunction(receiver, value, scope, params, el) {
 
 function throwExpressionError(el, expression, error) {
   console.warn(
-    `Alpine Error: Alpine is unable to interpret the following expression using the CSP-friendly build:
+    `Stator Error: Stator is unable to interpret the following expression using the CSP-friendly build:
 
         "${expression}"
 
         Error: ${error.message}
 
-        Read more about Alpine's CSP-friendly build restrictions here: https://alpinejs.dev/advanced/csp
+        Read more about Stator's CSP-friendly build restrictions here: https://statorjs.dev/advanced/csp
         `,
     el
   );

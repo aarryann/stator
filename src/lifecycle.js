@@ -7,14 +7,14 @@ import { warn } from './utils/warn';
 let started = false;
 
 export function start() {
-  if (started) warn('Alpine has already been initialized on this page. Calling Alpine.start() more than once can cause problems.');
+  if (started) warn('Stator has already been initialized on this page. Calling Stator.start() more than once can cause problems.');
 
   started = true;
 
-  if (!document.body) warn("Unable to initialize. Trying to load Alpine before `<body>` is available. Did you forget to add `defer` in Alpine's `<script>` tag?");
+  if (!document.body) warn("Unable to initialize. Trying to load Stator before `<body>` is available. Did you forget to add `defer` in Stator's `<script>` tag?");
 
-  dispatch(document, 'alpine:init');
-  dispatch(document, 'alpine:initializing');
+  dispatch(document, 'stator:init');
+  dispatch(document, 'stator:initializing');
 
   startObservingMutations();
 
@@ -32,7 +32,7 @@ export function start() {
       initTree(el);
     });
 
-  dispatch(document, 'alpine:initialized');
+  dispatch(document, 'stator:initialized');
 
   setTimeout(() => {
     warnAboutMissingPlugins();
