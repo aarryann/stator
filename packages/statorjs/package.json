@@ -1,0 +1,20 @@
+{
+  "name": "statorjs",
+  "version": "0.0.1",
+  "description": "Stator for client side rendering",
+  "homepage": "https://stator.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aarryann/stator.git",
+    "directory": "packages/statorjs"
+  },
+  "author": "Vivek Pillai",
+  "license": "ISC",
+  "main": "dist/module.cjs.js",
+  "module": "dist/module.esm.js",
+  "unpkg": "dist/cdn.min.js",
+  "dependencies": {
+    "@vue/reactivity": "^3.5.13",
+    "expr-eval": "^2.0.2"
+  }
+}

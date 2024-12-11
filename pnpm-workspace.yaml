@@ -1,0 +1,2 @@
+packages:
+  - 'packages/*' # This matches all subdirectories under the 'packages' directory

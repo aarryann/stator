@@ -1,0 +1,17 @@
+{
+  "name": "statorgen",
+  "version": "0.0.1",
+  "description": "Stator for server side generation",
+  "homepage": "https://stator.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aarryann/stator.git",
+    "directory": "packages/statorgen"
+  },
+  "author": "Vivek Pillai",
+  "license": "ISC",
+  "main": "dist/module.cjs.js",
+  "module": "dist/module.esm.js",
+  "unpkg": "dist/cdn.min.js",
+  "dependencies": {}
+}
