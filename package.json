@@ -4,7 +4,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node esbuild.config.js"
   },
   "keywords": [],
   "author": "Vivek Pillai",
@@ -13,5 +14,13 @@
   "dependencies": {
     "@vue/reactivity": "^3.5.13",
     "expr-eval": "^2.0.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.16.0",
+    "globals": "^15.13.0",
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.8"
   }
 }
