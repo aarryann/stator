@@ -1,22 +1,27 @@
-import { writeToPackageDotJson, getFromPackageDotJson } from './utils.js';
-import fs from 'fs';
-import zlib from 'zlib';
-import esbuild from 'esbuild';
+let { writeToPackageDotJson, getFromPackageDotJson } = require('./utils');
+let fs = require('fs');
+let zlib = require('zlib');
 
-const packages = ['statorjs', 'statorgen'];
-
-packages.forEach(pkg => {
-  const distPath = `./packages/${pkg}/dist`;
-  if (!fs.existsSync(distPath)) {
-    fs.mkdirSync(distPath, 0o744);
+[
+  // Packages:
+  'statorjs',
+  'statorgen'
+].forEach(pkg => {
+  if (!fs.existsSync(`./packages/${pkg}/dist`)) {
+    fs.mkdirSync(`./packages/${pkg}/dist`, 0o744);
   }
 
-  const buildFiles = fs.readdirSync(`./packages/${pkg}/builds`);
-  buildFiles.forEach(file => bundleFile(pkg, file));
+  // Go through each file in the package's "build" directory
+  // and use the appropriate bundling strategy based on its name.
+  fs.readdirSync(`./packages/${pkg}/builds`).forEach(file => {
+    bundleFile(pkg, file);
+  });
 });
 
 function bundleFile(pkg, file) {
-  const bundlers = {
+  // Based on the filename, give esbuild a specific configuration to build.
+  ({
+    // This output file is meant to be loaded in a browser's <script> tag.
     'cdn.js': () => {
       build({
         entryPoints: [`packages/${pkg}/builds/${file}`],
@@ -26,6 +31,7 @@ function bundleFile(pkg, file) {
         define: { CDN: 'true' }
       });
 
+      // Build a minified version.
       build({
         entryPoints: [`packages/${pkg}/builds/${file}`],
         outfile: `packages/${pkg}/dist/${file.replace('.js', '.min.js')}`,
@@ -37,6 +43,9 @@ function bundleFile(pkg, file) {
         outputSize(pkg, `packages/${pkg}/dist/${file.replace('.js', '.min.js')}`);
       });
     },
+    // This file outputs two files: an esm module and a cjs module.
+    // The ESM one is meant for "import" statements (bundlers and new browsers)
+    // and the cjs one is meant for "require" statements (node).
     'module.js': () => {
       build({
         entryPoints: [`packages/${pkg}/builds/${file}`],
@@ -57,44 +66,23 @@ function bundleFile(pkg, file) {
         writeToPackageDotJson(pkg, 'module', `dist/${file.replace('.js', '.esm.js')}`);
       });
     }
-  };
-
-  bundlers[file]();
+  })[file]();
 }
 
 function build(options) {
-  options.define ||= {};
+  options.define || (options.define = {});
+
   options.define['STATOR_VERSION'] = `'${getFromPackageDotJson('statorjs', 'version')}'`;
+  options.define['process.env.NODE_ENV'] = process.argv.includes('--watch') ? `'production'` : `'development'`;
 
-  const isWatchMode = process.argv.includes('--watch');
-
-  if (isWatchMode) {
-    return esbuild
-      .build({
-        logLevel: 'info',
-        define: {
-          'process.env.NODE_ENV': `'production'`
-        },
-        // external: ['statorjs'],
-        ...options
-      })
-      .then(async context => {
-        await context.watch();
-        console.log('Watching for changes...');
-      })
-      .catch(() => process.exit(1));
-  } else {
-    return esbuild
-      .build({
-        logLevel: 'warning',
-        define: {
-          'process.env.NODE_ENV': `'development'`
-        },
-        // external: ['statorjs'],
-        ...options
-      })
-      .catch(() => process.exit(1));
-  }
+  return require('esbuild')
+    .build({
+      logLevel: process.argv.includes('--watch') ? 'info' : 'warning',
+      watch: process.argv.includes('--watch'),
+      // external: ['alpinejs'],
+      ...options
+    })
+    .catch(() => process.exit(1));
 }
 
 function outputSize(pkg, file) {
