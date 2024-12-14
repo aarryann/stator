@@ -20,10 +20,10 @@ export default [
   },
   {
     ignores: [
-      'dist/**/*', // Ignore all files in the 'dist' directory
-      'node_modules/**/*', // Ignore 'node_modules' directory
-      '*.min.js', // Ignore minified JavaScript files
-      'build/*' // Ignore 'build' directory
+      '**/dist/', // Ignore all files in the 'dist' directory
+      '**/node_modules/', // Ignore 'node_modules' directory
+      '**/*.min.js', // Ignore minified JavaScript files
+      '**/build/' // Ignore 'build' directory
     ]
   }
 ];

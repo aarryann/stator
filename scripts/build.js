@@ -18,6 +18,7 @@ packages.forEach(pkg => {
 function bundleFile(pkg, file) {
   const bundlers = {
     'cdn.js': () => {
+      /*
       build({
         entryPoints: [`packages/${pkg}/builds/${file}`],
         outfile: `packages/${pkg}/dist/${file}`,
@@ -25,7 +26,7 @@ function bundleFile(pkg, file) {
         platform: 'browser',
         define: { CDN: 'true' }
       });
-
+      */
       build({
         entryPoints: [`packages/${pkg}/builds/${file}`],
         outfile: `packages/${pkg}/dist/${file.replace('.js', '.min.js')}`,
@@ -40,16 +41,18 @@ function bundleFile(pkg, file) {
     'module.js': () => {
       build({
         entryPoints: [`packages/${pkg}/builds/${file}`],
-        outfile: `packages/${pkg}/dist/${file.replace('.js', '.esm.js')}`,
+        outfile: `packages/${pkg}/dist/${file.replace('.js', '.esm.min.js')}`,
         bundle: true,
+        minify: true,
         platform: 'neutral',
         mainFields: ['module', 'main']
       });
 
       build({
         entryPoints: [`packages/${pkg}/builds/${file}`],
-        outfile: `packages/${pkg}/dist/${file.replace('.js', '.cjs.js')}`,
+        outfile: `packages/${pkg}/dist/${file.replace('.js', '.cjs.min.js')}`,
         bundle: true,
+        minify: true,
         target: ['node10.4'],
         platform: 'node'
       }).then(() => {
