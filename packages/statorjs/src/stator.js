@@ -33,7 +33,7 @@ let Stator = {
   get raw() {
     return raw;
   },
-  version: STATOR_VERSION,
+  //version: STATOR_VERSION || '0.0.0', //eslint-disable-line
   flushAndStopDeferringMutations,
   dontAutoEvaluateFunctions,
   disableEffectScheduling,

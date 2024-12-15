@@ -4,9 +4,8 @@ export default defineConfig({
   test: {
     // Specify your test directory
     dir: './tests',
-
-    // Optional: global test utilities
-    globals: true,
+    environment: 'jsdom', // Important for DOM testing
+    globals: true, // Optional: global test utilities
 
     // Optional: coverage configuration
     coverage: {

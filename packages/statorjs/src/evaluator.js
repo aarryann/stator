@@ -63,6 +63,8 @@ function generateEvaluatorFromString(dataStack, expression, el) {
     let evaluatedExpression;
     try {
       // Parse and evaluate the expression with expr-eval
+      console.log(1);
+      console.log(expression);
       const expr = parser.parse(expression);
       evaluatedExpression = expr.evaluate(completeScope);
     } catch (e) {
