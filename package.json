@@ -5,10 +5,9 @@
   ],
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "node ./scripts/build.js",
-    "vitest": "vitest",
-    "vitest:coverage": "vitest run --coverage",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
     "watch": "node ./scripts/build.js --watch",
     "update-docs": "node ./scripts/update-docs.js",
     "release": "node ./scripts/release.js"
