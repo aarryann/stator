@@ -1,4 +1,4 @@
-import { evaluator, evaluate } from './evaluatorexpr';
-//import { normalEvaluator as evaluator, evaluate } from './evaluatornormal';
+import { evaluator, evaluate, dontAutoEvaluateFunctions, evaluateLater, setEvaluator, generateEvaluatorFromFunction, runIfTypeOfFunction } from './evaluatorexpr';
+//import { normalEvaluator as evaluator, evaluate, dontAutoEvaluateFunctions, evaluateLater, setEvaluator, generateEvaluatorFromFunction, runIfTypeOfFunction } from './evaluatornormal';
 
-export {evaluator, evaluate};
+export {evaluator, evaluate, dontAutoEvaluateFunctions, evaluateLater, setEvaluator, generateEvaluatorFromFunction, runIfTypeOfFunction};
