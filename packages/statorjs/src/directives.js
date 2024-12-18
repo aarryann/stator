@@ -1,5 +1,5 @@
 import { onAttributeRemoved, onElRemoved } from './mutation';
-import { evaluate, evaluateLater } from './evaluator';
+import { evaluate, evaluateLater } from './evaluatorexpr';
 import { elementBoundEffect } from './reactivity';
 import Stator from './stator';
 
