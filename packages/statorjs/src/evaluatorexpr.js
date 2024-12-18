@@ -23,13 +23,13 @@ export function evaluateLater(...args) {
   return theEvaluatorFunction(...args);
 }
 
-let theEvaluatorFunction = exprEvaluator;
+let theEvaluatorFunction = evaluator;
 
 export function setEvaluator(newEvaluator) {
   theEvaluatorFunction = newEvaluator;
 }
 
-export function exprEvaluator(el, expression) {
+export function evaluator(el, expression) {
   let dataStack = generateDataStack(el);
 
   let evaluator = typeof expression === 'function' ? generateEvaluatorFromFunction(dataStack, expression) : generateEvaluatorFromString(dataStack, expression, el);

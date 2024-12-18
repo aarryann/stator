@@ -23,13 +23,13 @@ export function evaluateLater(...args) {
   return theEvaluatorFunction(...args);
 }
 
-let theEvaluatorFunction = exprEvaluator;
+let theEvaluatorFunction = normalEvaluator;
 
 export function setEvaluator(newEvaluator) {
   theEvaluatorFunction = newEvaluator;
 }
 
-export function exprEvaluator(el, expression) {
+export function normalEvaluator(el, expression) {
   let overriddenMagics = {};
 
   injectMagics(overriddenMagics, el);

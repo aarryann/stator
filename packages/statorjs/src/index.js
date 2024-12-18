@@ -1,8 +1,8 @@
 import Stator from './stator';
 
-import { exprEvaluator } from './evaluator';
+import { evaluator } from './evaluator';
 
-Stator.setEvaluator(exprEvaluator);
+Stator.setEvaluator(evaluator);
 
 import { reactive, effect, stop, toRaw } from '@vue/reactivity';
 
