@@ -64,7 +64,7 @@ function generateEvaluatorFromString(dataStack, expression, el) {
     try {
       // Parse and evaluate the expression with expr-eval
       const exprCheck = expression.trim();
-      if(exprCheck.startsWith("{")){
+      if (exprCheck.startsWith('{')) {
         evaluatedExpression = JSON.parse(exprCheck);
       } else {
         const expr = parser.parse(expression);
@@ -93,7 +93,7 @@ export function runIfTypeOfFunction(receiver, value, scope, params, el) {
     receiver(value);
   }
 }
-
+/// STATOR CUSTOMIZED
 function throwExpressionError(el, expression, error) {
   console.warn(
     `Stator Error: Stator is unable to interpret the following expression using the CSP-friendly build:

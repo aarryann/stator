@@ -1,185 +1,118 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import Stator from '../../packages/statorjs/src/index';
+import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
+import Stator, { nextTick } from '../../packages/alpinejs/src/index';
+import { render, fireEvent, screen } from '@testing-library/vue';
 
-describe('Alpine.js-like Directives Test Suite', () => {
-  let container;
-
-  /*
-  beforeEach(() => {
-    // Create a fresh container for each test
-    container = document.createElement('div');
-    document.body.appendChild(container);
-  });
-*/
-  // x-text Directive Test
-  it('should handle x-text directive', () => {
-    document.body.innerHTML = `
-      <div x-data='{ "message": "Hello, world!!" }'>
-        <span x-text="message"></span>
-      </div>
-    `;
-    
-    Stator.start();
-    
-    const span = document.querySelector('span');
-    expect(span.textContent).toBe('Hello, world!!');
-  });
+// Mock the startObservingMutations function
 /*
-  // x-show Directive Test
-  it('should handle x-show directive', () => {
-    document.body.innerHTML = `
-      <div x-data="{ isVisible: true }">
-        <div x-show="isVisible" id="test-element">Visible Content</div>
-      </div>
-    `;
-    
-    Stator.start();
-    
-    const element = container.querySelector('#test-element');
-    expect(element.style.display).not.toBe('none');
+vi.mock('../../packages/alpinejs/src/mutation', async () => {
+  const originalModule = await vi.importActual('../../packages/alpinejs/src/mutation'); // Import actual exports
+
+  return {
+    ...originalModule, // Include all original exports
+    startObservingMutations: vi.fn(() => {}) // Mock this specific function
+  };
+});
+*/
+function mountWithAlpine(html, data = {}, postTreeCallback = () => {}) {
+  document.body.innerHTML = html;
+  //Stator.data('testComponent', () => data);
+  Stator.initTree(document.body.firstChild, undefined, undefined, postTreeCallback);
+}
+beforeAll(() => {
+  // Setup before each describe
+  document.body.innerHTML = '<div></div>';
+  Stator.start();
+});
+
+beforeEach(() => {
+  // Clean up DOM before each test
+  Stator.destroyTree(document.body.firstChild);
+  document.body.innerHTML = '';
+});
+
+describe('Alpine.js Directives Tests', () => {
+  it('x-data initializes correctly and binds data to the DOM', () => {
+    mountWithAlpine(`<div x-data='{ "foo": "bar" }'><span x-text="foo"></span></div>`);
+    const span = document.querySelector('span');
+    expect(span.textContent).toBe('bar');
   });
 
-  // x-if Directive Test (if your framework supports conditional rendering)
-  it('should handle x-if directive', () => {
-    document.body.innerHTML = `
-      <div x-data="{ showElement: false }">
-        <div x-if="showElement" id="conditional-element">Conditional Content</div>
-      </div>
-    `;
-    
-    Stator.start();
-    
-    const element = container.querySelector('#conditional-element');
-    expect(element).toBeNull();
+  it('x-bind dynamically binds attributes', () => {
+    mountWithAlpine(
+      `<div x-data='{ "color": "red" }'>
+         <p x-bind:style="'color: ' + color">Test</p>
+       </div>`
+    );
+    const element = document.querySelector('p');
+    expect(element.style.color).toBe('red');
   });
 
-  // x-bind Directive Test
-  it('should handle x-bind directive', () => {
-    document.body.innerHTML = `
-      <div x-data="{ 
-        buttonClass: 'primary', 
-        isDisabled: false 
-      }">
-        <button 
-          x-bind:class="buttonClass" 
-          x-bind:disabled="isDisabled"
-        >
-          Click me
-        </button>
-      </div>
-    `;
-    
-    Stator.start();
-    
-    const button = container.querySelector('button');
-    expect(button.classList.contains('primary')).toBe(true);
-    expect(button.disabled).toBe(false);
-  });
+  it('x-on handles events', async () => {
+    mountWithAlpine(
+      `<div x-data="{ count: 0 }">
+         <button x-on:click="count++">Click</button>
+         <span x-text="count"></span>
+       </div>`,
+      { count: 0 }
+    );
+    const button = document.querySelector('button');
+    const span = document.querySelector('span');
 
-  // x-on Directive Test
-  it('should handle x-on:click directive', () => {
-    document.body.innerHTML = `
-      <div x-data="{ count: 0 }">
-        <button 
-          x-on:click="count++" 
-          x-text="count"
-        >0</button>
-      </div>
-    `;
-    
-    Stator.start();
-    
-    const button = container.querySelector('button');
-    
-    // Simulate initial state
-    expect(button.textContent).toBe('0');
-    
-    // Simulate click
-    button.click();
-    
-    // Verify state update
-    expect(button.textContent).toBe('1');
-  });
-
-  // x-model Directive Test
-  it('should handle x-model directive', () => {
-    document.body.innerHTML = `
-      <div x-data="{ message: 'Initial' }">
-        <input x-model="message" />
-        <span x-text="message"></span>
-      </div>
-    `;
-    
-    Stator.start();
-    
-    const input = container.querySelector('input');
-    const span = container.querySelector('span');
-    
-    // Verify initial state
-    expect(input.value).toBe('Initial');
-    expect(span.textContent).toBe('Initial');
-    
-    // Simulate user input
-    input.value = 'Updated';
-    input.dispatchEvent(new Event('input'));
-    
-    // Verify state update
-    expect(span.textContent).toBe('Updated');
-  });
-
-  // x-for Directive Test
-  it('should handle x-for directive', () => {
-    document.body.innerHTML = `
-      <div x-data="{ items: ['apple', 'banana', 'cherry'] }">
-        <ul>
-          <template x-for="item in items">
-            <li x-text="item"></li>
-          </template>
-        </ul>
-      </div>
-    `;
-    
-    Stator.start();
-    
-    const listItems = container.querySelectorAll('li');
-    
-    expect(listItems.length).toBe(3);
-    expect(listItems[0].textContent).toBe('apple');
-    expect(listItems[1].textContent).toBe('banana');
-    expect(listItems[2].textContent).toBe('cherry');
-  });
-
-  // Complex Interaction Test
-  it('should handle multiple directives together', () => {
-    document.body.innerHTML = `
-      <div x-data="{ 
-        count: 0, 
-        increment() { this.count++ },
-        isEven() { return this.count % 2 === 0 }
-      }">
-        <button 
-          x-on:click="increment()" 
-          x-bind:disabled="isEven()"
-        >
-          Increment
-        </button>
-        <span x-text="count"></span>
-      </div>
-    `;
-    
-    Stator.start();
-    
-    const button = container.querySelector('button');
-    const span = container.querySelector('span');
-    
-    // Initial state
     expect(span.textContent).toBe('0');
-    expect(button.disabled).toBe(true);
-    
-    // First click
-    button.click();
+
+    await fireEvent.click(button);
     expect(span.textContent).toBe('1');
-    expect(button.disabled).toBe(false);
   });
-  */
+
+  it('x-model two-way binds input fields', async () => {
+    mountWithAlpine(
+      `<div x-data="{ inputValue: '' }">
+         <input x-model="inputValue">
+         <p x-text="inputValue"></p>
+       </div>`
+    );
+    const input = document.querySelector('input');
+    const output = document.querySelector('p');
+
+    await fireEvent.update(input, 'Hello Alpine!');
+    expect(output.textContent).toBe('Hello Alpine!');
+  });
+
+  it('x-show toggles element visibility', () => {
+    mountWithAlpine(
+      `<div x-data="{ visible: true }">
+         <p x-show="visible">Visible</p>
+       </div>`
+    );
+    const paragraph = document.querySelector('p');
+    expect(paragraph.style.display).not.toBe('none');
+  });
+
+  it('x-if renders and destroys elements', () => {
+    mountWithAlpine(
+      `<div x-data="{ show: true }">
+         <template x-if="show">
+           <p>Conditionally Rendered</p>
+         </template>
+       </div>`
+    );
+
+    const paragraph = document.body.querySelector('p');
+    expect(paragraph).not.toBeNull();
+  });
+
+  it('x-for loops through arrays', () => {
+    mountWithAlpine(
+      `<div x-data="{ items: ['One', 'Two', 'Three'] }">
+         <template x-for="item in items">
+           <p x-text="item"></p>
+         </template>
+       </div>`
+    );
+    const paragraphs = document.querySelectorAll('p');
+    expect(paragraphs.length).toBe(3);
+    expect(paragraphs[0].textContent).toBe('One');
+    expect(paragraphs[1].textContent).toBe('Two');
+    expect(paragraphs[2].textContent).toBe('Three');
+  });
 });

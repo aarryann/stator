@@ -3,7 +3,7 @@ import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed } fro
 import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit } from './lifecycle';
 import { onElRemoved, onAttributeRemoved, onAttributesAdded, mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation';
 import { mergeProxies, closestDataStack, addScopeToNode, scope as $data } from './scope';
-import { setEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions } from './evaluatorexpr'; /// STATOR CUSTOMIZED
+import { setEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions } from './evaluator';
 import { transition } from './directives/x-transition';
 import { clone, cloneNode, skipDuringClone, onlyDuringClone, interceptClone } from './clone';
 import { interceptor } from './interceptor';
@@ -19,8 +19,8 @@ import { magic } from './magics';
 import { store } from './store';
 import { bind } from './binds';
 import { data } from './datas';
-/// STATOR CUSTOMIZED
-let Stator = {
+
+let Alpine = {
   get reactive() {
     return reactive;
   },
@@ -33,7 +33,7 @@ let Stator = {
   get raw() {
     return raw;
   },
-  //version: STATOR_VERSION || '0.0.0', //eslint-disable-line  /// STATOR CUSTOMIZED
+  //version: ALPINE_VERSION,
   flushAndStopDeferringMutations,
   dontAutoEvaluateFunctions,
   disableEffectScheduling,
@@ -87,4 +87,4 @@ let Stator = {
   bind
 };
 
-export default Stator; /// STATOR CUSTOMIZED
+export default Alpine;

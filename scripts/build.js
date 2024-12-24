@@ -67,7 +67,7 @@ function bundleFile(pkg, file) {
 
 function build(options) {
   options.define ||= {};
-  options.define['STATOR_VERSION'] = `'${getFromPackageDotJson('statorjs', 'version')}'`;
+  options.define['STATOR_VERSION'] = `'${getFromPackageDotJson('statorjs', 'version')}'`; /// STATOR CUSTOMIZED
 
   const isWatchMode = process.argv.includes('--watch');
 
