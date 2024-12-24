@@ -3,7 +3,7 @@ import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed } fro
 import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit } from './lifecycle';
 import { onElRemoved, onAttributeRemoved, onAttributesAdded, mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation';
 import { mergeProxies, closestDataStack, addScopeToNode, scope as $data } from './scope';
-import { setEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions } from './evaluatorexpr'; /// STATOR CUSTOMIZED
+import { setEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions } from './evaluator'; /// STATOR CUSTOMIZED
 import { transition } from './directives/x-transition';
 import { clone, cloneNode, skipDuringClone, onlyDuringClone, interceptClone } from './clone';
 import { interceptor } from './interceptor';

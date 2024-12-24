@@ -1,8 +1,8 @@
 import Stator from './stator'; /// STATOR CUSTOMIZED
 
-import { evaluator } from './evaluator'; /// STATOR CUSTOMIZED
+import { normalEvaluator } from './evaluator'; /// STATOR CUSTOMIZED
 
-Stator.setEvaluator(evaluator); /// STATOR CUSTOMIZED
+Stator.setEvaluator(normalEvaluator); /// STATOR CUSTOMIZED
 
 import { reactive, effect, stop, toRaw } from '@vue/reactivity';
 

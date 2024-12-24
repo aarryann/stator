@@ -67,7 +67,7 @@ function generateFunctionFromString(expression, el) {
   // Here we'll detect if the expression isn't valid for an assignment and wrap it in a self-
   // calling function so that we don't throw an error AND a "return" statement can b e used.
   let rightSideSafeExpression =
-    0 ||
+    0 || // eslint-disable-line
     // Support expressions starting with "if" statements like: "if (...) doSomething()"
     /^[\n\s]*if.*\(.*\)/.test(expression.trim()) ||
     // Support expressions starting with "let/const" like: "let foo = 'bar'"

@@ -1,5 +1,5 @@
 import { directive, into, mapAttributes, prefix, startingWith } from '../directives';
-import { evaluateLater } from '../evaluator';
+import { evaluateLater } from '../evaluator'; /// STATOR CUSTOMIZED
 import { skipDuringClone } from '../clone';
 import on from '../utils/on';
 

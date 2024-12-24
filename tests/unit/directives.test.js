@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
-import Stator, { nextTick } from '../../packages/alpinejs/src/index';
+import Stator from '../../packages/statorjs/src/index';
 import { render, fireEvent, screen } from '@testing-library/vue';
 
 // Mock the startObservingMutations function
@@ -74,8 +74,8 @@ describe('Alpine.js Directives Tests', () => {
     const input = document.querySelector('input');
     const output = document.querySelector('p');
 
-    await fireEvent.update(input, 'Hello Alpine!');
-    expect(output.textContent).toBe('Hello Alpine!');
+    await fireEvent.update(input, 'Hello Stator!');
+    expect(output.textContent).toBe('Hello Stator!');
   });
 
   it('x-show toggles element visibility', () => {

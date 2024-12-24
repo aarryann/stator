@@ -1,5 +1,5 @@
 import bind, { isCheckbox, isRadio, safeParseBoolean } from '../utils/bind';
-import { evaluateLater } from '../evaluator';
+import { evaluateLater } from '../evaluator'; /// STATOR CUSTOMIZED
 import { directive } from '../directives';
 import { mutateDom } from '../mutation';
 import { nextTick } from '../nextTick';

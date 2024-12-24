@@ -6,7 +6,7 @@ import { interceptClone, isCloning, isCloningLegacy } from '../clone';
 import { addScopeToNode } from '../scope';
 import { injectMagics, magic } from '../magics';
 import { reactive } from '../reactivity';
-import { evaluate } from '../evaluator';
+import { evaluate } from '../evaluator'; /// STATOR CUSTOMIZED
 
 addRootSelector(() => `[${prefix('data')}]`);
 

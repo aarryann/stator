@@ -1,4 +1,4 @@
-import { evaluateLater } from '../evaluator';
+import { evaluateLater } from '../evaluator'; /// STATOR CUSTOMIZED
 import { addScopeToNode } from '../scope';
 import { directive } from '../directives';
 import { initTree, destroyTree } from '../lifecycle';
