@@ -33,7 +33,7 @@ let Alpine = {
   get raw() {
     return raw;
   },
-  //version: ALPINE_VERSION,
+  //version: STATOR_VERSION, /// STATOR CUSTOMIZED
   flushAndStopDeferringMutations,
   dontAutoEvaluateFunctions,
   disableEffectScheduling,

@@ -12,7 +12,7 @@
  * For starters, we'll import Alpine's core. This is the
  * object that will expose all of Alpine's public API.
  */
-import Alpine from './alpine'
+import Alpine from './alpine'; /// STATOR CUSTOMIZABLE
 
 /**
  * _______________________________________________________
@@ -23,9 +23,9 @@ import Alpine from './alpine'
  * It's the function that converts raw JavaScript string
  * expressions like @click="toggle()", into actual JS.
  */
-import { normalEvaluator } from './evaluator'
+import { normalEvaluator } from './evaluator'; /// STATOR CUSTOMIZABLE
 
-Alpine.setEvaluator(normalEvaluator)
+Alpine.setEvaluator(normalEvaluator); /// STATOR CUSTOMIZABLE
 
 /**
  * _______________________________________________________
@@ -36,9 +36,9 @@ Alpine.setEvaluator(normalEvaluator)
  * Alpine that triggers an element with x-text="message"
  * to update its inner text when "message" is changed.
  */
-import { reactive, effect, stop, toRaw } from '@vue/reactivity'
+import { reactive, effect, stop, toRaw } from '@vue/reactivity';
 
-Alpine.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw })
+Alpine.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw }); /// STATOR CUSTOMIZABLE
 
 /**
  * _______________________________________________________
@@ -49,7 +49,7 @@ Alpine.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw })
  * These are the properties that are magically available
  * to all the Alpine expressions, within your web app.
  */
-import './magics/index'
+import './magics/index';
 
 /**
  * _______________________________________________________
@@ -60,7 +60,7 @@ import './magics/index'
  * directives like x-text or x-on that form the basis of
  * how Alpine adds behavior to an app's static markup.
  */
-import './directives/index'
+import './directives/index';
 
 /**
  * _______________________________________________________
@@ -71,4 +71,4 @@ import './directives/index'
  * Alpine-related that will need to be accessed on-going
  * will be made available through the "Alpine" global.
  */
-export default Alpine
+export default Alpine; /// STATOR CUSTOMIZABLE

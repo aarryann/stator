@@ -1,23 +1,29 @@
-import { initInterceptors } from "./interceptor";
-import { reactive } from "./reactivity"
+import { initInterceptors } from './interceptor';
+import { reactive } from './reactivity';
 
-let stores = {}
-let isReactive = false
+let stores = {};
+let isReactive = false;
 
 export function store(name, value) {
-    if (! isReactive) { stores = reactive(stores); isReactive = true; }
+  if (!isReactive) {
+    stores = reactive(stores);
+    isReactive = true;
+  }
 
-    if (value === undefined) {
-        return stores[name]
-    }
+  if (value === undefined) {
+    return stores[name];
+  }
 
-    stores[name] = value
+  stores[name] = value;
 
-    initInterceptors(stores[name])
+  initInterceptors(stores[name]);
 
-    if (typeof value === 'object' && value !== null && value.hasOwnProperty('init') && typeof value.init === 'function') {
-        stores[name].init()
-    }
+  if (typeof value === 'object' && value !== null && Object.prototype.hasOwnProperty.call(value, 'init') && typeof value.init === 'function') {
+    /// STATOR CUSTOMIZED
+    stores[name].init();
+  }
 }
 
-export function getStores() { return stores }
+export function getStores() {
+  return stores;
+}

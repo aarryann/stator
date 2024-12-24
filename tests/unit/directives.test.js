@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
-import Stator from '../../packages/statorjs/src/index';
+import Stator from '../../packages/alpinejs/src/index';
 import { render, fireEvent, screen } from '@testing-library/vue';
 
 // Mock the startObservingMutations function
@@ -31,6 +31,7 @@ beforeEach(() => {
 });
 
 describe('Alpine.js Directives Tests', () => {
+  /// TODO: Test stator:init, initializing and initialized from lifecycle.js
   it('x-data initializes correctly and binds data to the DOM', () => {
     mountWithAlpine(`<div x-data='{ "foo": "bar" }'><span x-text="foo"></span></div>`);
     const span = document.querySelector('span');

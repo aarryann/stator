@@ -1,7 +1,7 @@
 import { onAttributeRemoved, onElRemoved } from './mutation';
-import { evaluate, evaluateLater } from './evaluator';
+import { evaluate, evaluateLater } from './evaluator'; /// STATOR CUSTOMIZABLE
 import { elementBoundEffect } from './reactivity';
-import Alpine from './alpine';
+import Alpine from './alpine'; /// STATOR CUSTOMIZABLE
 
 let prefixAsString = 'x-';
 
@@ -42,7 +42,7 @@ export function directives(el, attributes, originalAttributeOverride) {
 
     let staticAttributes = attributesOnly(vAttributes);
 
-    // Handle binding normal HTML attributes (non-Alpine directives).
+    // Handle binding normal HTML attributes (non-paradigm directives). /// STATOR CUSTOMIZED
     vAttributes = vAttributes.map(attribute => {
       if (staticAttributes.find(attr => attr.name === attribute.name)) {
         return {
@@ -61,7 +61,7 @@ export function directives(el, attributes, originalAttributeOverride) {
 
   let directives = attributes
     .map(toTransformedAttributes((newName, oldName) => (transformedAttributeMap[newName] = oldName)))
-    .filter(outNonAlpineAttributes)
+    .filter(outNonParadigmAttributes) /// STATOR CUSTOMIZED
     .map(toParsedDirectives(transformedAttributeMap, originalAttributeOverride))
     .sort(byPriority);
 
@@ -73,7 +73,7 @@ export function directives(el, attributes, originalAttributeOverride) {
 export function attributesOnly(attributes) {
   return Array.from(attributes)
     .map(toTransformedAttributes())
-    .filter(attr => !outNonAlpineAttributes(attr));
+    .filter(attr => !outNonParadigmAttributes(attr)); /// STATOR CUSTOMIZED
 }
 
 let isDeferringHandlers = false;
@@ -115,7 +115,7 @@ export function getElementBoundUtilities(el) {
   cleanups.push(cleanupEffect);
 
   let utilities = {
-    Alpine,
+    Alpine, /// STATOR CUSTOMIZABLE
     effect,
     cleanup,
     evaluateLater: evaluateLater.bind(evaluateLater, el),
@@ -181,16 +181,16 @@ let attributeTransformers = [];
 export function mapAttributes(callback) {
   attributeTransformers.push(callback);
 }
-
-function outNonAlpineAttributes({ name }) {
-  return alpineAttributeRegex().test(name);
+/// STATOR CUSTOMIZED
+function outNonParadigmAttributes({ name }) {
+  return paradigmAttributeRegex().test(name);
 }
-
-let alpineAttributeRegex = () => new RegExp(`^${prefixAsString}([^:^.]+)\\b`);
+/// STATOR CUSTOMIZED
+let paradigmAttributeRegex = () => new RegExp(`^${prefixAsString}([^:^.]+)\\b`);
 
 function toParsedDirectives(transformedAttributeMap, originalAttributeOverride) {
   return ({ name, value }) => {
-    let typeMatch = name.match(alpineAttributeRegex());
+    let typeMatch = name.match(paradigmAttributeRegex()); /// STATOR CUSTOMIZED
     let valueMatch = name.match(/:([a-zA-Z0-9\-_:]+)/);
     let modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
     let original = originalAttributeOverride || transformedAttributeMap[name] || name;
