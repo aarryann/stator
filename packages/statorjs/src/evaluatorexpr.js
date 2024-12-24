@@ -102,7 +102,7 @@ function throwExpressionError(el, expression, error) {
 
         Error: ${error.message}
 
-        Read more about Stator's CSP-friendly build restrictions here: https://statorjs.dev/advanced/csp
+        Read more about Stator's CSP-friendly build restrictions here: https://stator.io/advanced/csp
         `,
     el
   );
