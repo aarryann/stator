@@ -20,7 +20,7 @@ import { store } from './store';
 import { bind } from './binds';
 import { data } from './datas';
 
-let Alpine = {
+let Stator = {
   get reactive() {
     return reactive;
   },
@@ -87,4 +87,4 @@ let Alpine = {
   bind
 };
 
-export default Alpine;
+export default Stator;

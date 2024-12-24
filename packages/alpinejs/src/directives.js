@@ -1,7 +1,7 @@
 import { onAttributeRemoved, onElRemoved } from './mutation';
 import { evaluate, evaluateLater } from './evaluator'; /// STATOR CUSTOMIZABLE
 import { elementBoundEffect } from './reactivity';
-import Alpine from './alpine'; /// STATOR CUSTOMIZABLE
+import Stator from './main'; /// STATOR CUSTOMIZABLE
 
 let prefixAsString = 'x-';
 
@@ -115,7 +115,7 @@ export function getElementBoundUtilities(el) {
   cleanups.push(cleanupEffect);
 
   let utilities = {
-    Alpine, /// STATOR CUSTOMIZABLE
+    Stator, /// STATOR CUSTOMIZABLE
     effect,
     cleanup,
     evaluateLater: evaluateLater.bind(evaluateLater, el),

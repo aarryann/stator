@@ -8,37 +8,37 @@
  *            | |                 _/ |
  *            |_|                |__/
  *
- * Let's build Alpine together. It's easier than you think.
- * For starters, we'll import Alpine's core. This is the
- * object that will expose all of Alpine's public API.
+ * Let's build Stator together. It's easier than you think.
+ * For starters, we'll import Stator's core. This is the
+ * object that will expose all of Stator's public API.
  */
-import Alpine from './alpine'; /// STATOR CUSTOMIZABLE
+import Stator from './main'; /// STATOR CUSTOMIZABLE
 
 /**
  * _______________________________________________________
  * The Evaluator
  * -------------------------------------------------------
  *
- * Now we're ready to bootstrap Alpine's evaluation system.
+ * Now we're ready to bootstrap Stator's evaluation system.
  * It's the function that converts raw JavaScript string
  * expressions like @click="toggle()", into actual JS.
  */
 import { normalEvaluator } from './evaluator'; /// STATOR CUSTOMIZABLE
 
-Alpine.setEvaluator(normalEvaluator); /// STATOR CUSTOMIZABLE
+Stator.setEvaluator(normalEvaluator); /// STATOR CUSTOMIZABLE
 
 /**
  * _______________________________________________________
  * The Reactivity Engine
  * -------------------------------------------------------
  *
- * This is the reactivity core of Alpine. It's the part of
- * Alpine that triggers an element with x-text="message"
+ * This is the reactivity core of Stator. It's the part of
+ * Stator that triggers an element with x-text="message"
  * to update its inner text when "message" is changed.
  */
 import { reactive, effect, stop, toRaw } from '@vue/reactivity';
 
-Alpine.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw }); /// STATOR CUSTOMIZABLE
+Stator.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw }); /// STATOR CUSTOMIZABLE
 
 /**
  * _______________________________________________________
@@ -47,7 +47,7 @@ Alpine.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw }); ///
  *
  * Yeah, we're calling them magics here like they're nouns.
  * These are the properties that are magically available
- * to all the Alpine expressions, within your web app.
+ * to all the Stator expressions, within your web app.
  */
 import './magics/index';
 
@@ -56,19 +56,19 @@ import './magics/index';
  * The Directives
  * -------------------------------------------------------
  *
- * Now that the core is all set up, we can register Alpine
+ * Now that the core is all set up, we can register Stator
  * directives like x-text or x-on that form the basis of
- * how Alpine adds behavior to an app's static markup.
+ * how Stator adds behavior to an app's static markup.
  */
 import './directives/index';
 
 /**
  * _______________________________________________________
- * The Alpine Global
+ * The Stator Global
  * -------------------------------------------------------
  *
  * Now that we have set everything up internally, anything
- * Alpine-related that will need to be accessed on-going
- * will be made available through the "Alpine" global.
+ * Stator-related that will need to be accessed on-going
+ * will be made available through the "Stator" global.
  */
-export default Alpine; /// STATOR CUSTOMIZABLE
+export default Stator; /// STATOR CUSTOMIZABLE
