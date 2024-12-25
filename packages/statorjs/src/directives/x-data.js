@@ -6,7 +6,7 @@ import { interceptClone, isCloning, isCloningLegacy } from '../clone';
 import { addScopeToNode } from '../scope';
 import { injectMagics, magic } from '../magics';
 import { reactive } from '../reactivity';
-import { evaluate } from '../evaluator'; /// STATOR CUSTOMIZED
+import { evaluate } from '../evaluator'; /// STATOR CUSTOMIZABLE
 
 addRootSelector(() => `[${prefix('data')}]`);
 
@@ -43,7 +43,7 @@ directive('data', (el, { expression }, { cleanup }) => {
 });
 
 interceptClone((from, to) => {
-  // Transfer over existing runtime Stator state from
+  // Transfer over existing runtime Stator state from /// STATOR CUSTOMIZED
   // the existing dom tree over to the new one...
   if (from._x_dataStack) {
     to._x_dataStack = from._x_dataStack;

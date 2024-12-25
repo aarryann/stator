@@ -1,4 +1,4 @@
-import Stator from './main'; /// STATOR CUSTOMIZED
+import Stator from './stator'; /// STATOR CUSTOMIZED
 
 export function plugin(callback) {
   let callbacks = Array.isArray(callback) ? callback : [callback];

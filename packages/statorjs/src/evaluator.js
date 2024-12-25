@@ -63,7 +63,7 @@ function generateFunctionFromString(expression, el) {
 
   let AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
-  // Some expressions that are useful in Alpine are not valid as the right side of an expression.
+  // Some expressions that are useful in Stator are not valid as the right side of an expression.
   // Here we'll detect if the expression isn't valid for an assignment and wrap it in a self-
   // calling function so that we don't throw an error AND a "return" statement can b e used.
   let rightSideSafeExpression =
@@ -80,7 +80,7 @@ function generateFunctionFromString(expression, el) {
       let func = new AsyncFunction(['__self', 'scope'], `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`);
 
       Object.defineProperty(func, 'name', {
-        value: `[Alpine] ${expression}`
+        value: `[Stator] ${expression}` /// STATOR CUSTOMIZED
       });
 
       return func;

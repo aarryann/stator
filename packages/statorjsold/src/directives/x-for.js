@@ -1,5 +1,5 @@
 import { addScopeToNode } from '../scope';
-import { evaluateLater } from '../evaluator'; /// STATOR CUSTOMIZABLE
+import { evaluateLater } from '../evaluator'; /// STATOR CUSTOMIZED
 import { directive } from '../directives';
 import { reactive } from '../reactivity';
 import { initTree, destroyTree } from '../lifecycle';
@@ -45,7 +45,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
   evaluateItems(items => {
     // Prepare yourself. There's a lot going on here. Take heart,
     // every bit of complexity in this function was added for
-    // the purpose of making Stator fast with large datas. /// STATOR CUSTOMIZED
+    // the purpose of making Stator fast with large datas.
 
     // Support number literals. Ex: x-for="i in 100"
     if (isNumeric(items) && items >= 0) {

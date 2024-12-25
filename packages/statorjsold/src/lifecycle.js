@@ -7,14 +7,14 @@ import { warn } from './utils/warn';
 let started = false;
 
 export function start() {
-  if (started) warn('Stator has already been initialized on this page. Calling Stator.start() more than once can cause problems.'); /// STATOR CUSTOMIZED
+  if (started) warn('Stator has already been initialized on this page. Calling Stator.start() more than once can cause problems.');
 
   started = true;
 
   if (!document.body) warn("Unable to initialize. Trying to load Stator before `<body>` is available. Did you forget to add `defer` in Stator's `<script>` tag?");
-
-  dispatch(document, 'stator:init'); /// STATOR CUSTOMIZED
-  dispatch(document, 'stator:initializing'); /// STATOR CUSTOMIZED
+  /// STATOR CUSTOMIZED
+  dispatch(document, 'stator:init');
+  dispatch(document, 'stator:initializing');
 
   startObservingMutations();
 

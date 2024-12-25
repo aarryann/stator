@@ -1,4 +1,4 @@
-import { evaluateLater } from '../evaluator'; /// STATOR CUSTOMIZED
+import { evaluateLater } from '../evaluator'; /// STATOR CUSTOMIZABLE
 import { directive } from '../directives';
 import { mutateDom } from '../mutation';
 import { once } from '../utils/once';

@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
-import Stator from '../../packages/alpinejs/src/index';
+import Stator from '../../packages/statorjs/src/index';
 import { render, fireEvent, screen } from '@testing-library/vue';
 
 // Mock the startObservingMutations function
 /*
-vi.mock('../../packages/alpinejs/src/mutation', async () => {
-  const originalModule = await vi.importActual('../../packages/alpinejs/src/mutation'); // Import actual exports
+vi.mock('../../packages/statorjs/src/mutation', async () => {
+  const originalModule = await vi.importActual('../../packages/statorjs/src/mutation'); // Import actual exports
 
   return {
     ...originalModule, // Include all original exports
@@ -13,7 +13,7 @@ vi.mock('../../packages/alpinejs/src/mutation', async () => {
   };
 });
 */
-function mountWithAlpine(html, data = {}, postTreeCallback = () => {}) {
+function mountHTML(html, data = {}, postTreeCallback = () => {}) {
   document.body.innerHTML = html;
   //Stator.data('testComponent', () => data);
   Stator.initTree(document.body.firstChild, undefined, undefined, postTreeCallback);
@@ -30,16 +30,16 @@ beforeEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('Alpine.js Directives Tests', () => {
+describe('Stator.js Directives Tests', () => {
   /// TODO: Test stator:init, initializing and initialized from lifecycle.js
   it('x-data initializes correctly and binds data to the DOM', () => {
-    mountWithAlpine(`<div x-data='{ "foo": "bar" }'><span x-text="foo"></span></div>`);
+    mountHTML(`<div x-data='{ "foo": "bar" }'><span x-text="foo"></span></div>`);
     const span = document.querySelector('span');
     expect(span.textContent).toBe('bar');
   });
 
   it('x-bind dynamically binds attributes', () => {
-    mountWithAlpine(
+    mountHTML(
       `<div x-data='{ "color": "red" }'>
          <p x-bind:style="'color: ' + color">Test</p>
        </div>`
@@ -49,7 +49,7 @@ describe('Alpine.js Directives Tests', () => {
   });
 
   it('x-on handles events', async () => {
-    mountWithAlpine(
+    mountHTML(
       `<div x-data="{ count: 0 }">
          <button x-on:click="count++">Click</button>
          <span x-text="count"></span>
@@ -66,7 +66,7 @@ describe('Alpine.js Directives Tests', () => {
   });
 
   it('x-model two-way binds input fields', async () => {
-    mountWithAlpine(
+    mountHTML(
       `<div x-data="{ inputValue: '' }">
          <input x-model="inputValue">
          <p x-text="inputValue"></p>
@@ -80,7 +80,7 @@ describe('Alpine.js Directives Tests', () => {
   });
 
   it('x-show toggles element visibility', () => {
-    mountWithAlpine(
+    mountHTML(
       `<div x-data="{ visible: true }">
          <p x-show="visible">Visible</p>
        </div>`
@@ -90,7 +90,7 @@ describe('Alpine.js Directives Tests', () => {
   });
 
   it('x-if renders and destroys elements', () => {
-    mountWithAlpine(
+    mountHTML(
       `<div x-data="{ show: true }">
          <template x-if="show">
            <p>Conditionally Rendered</p>
@@ -103,7 +103,7 @@ describe('Alpine.js Directives Tests', () => {
   });
 
   it('x-for loops through arrays', () => {
-    mountWithAlpine(
+    mountHTML(
       `<div x-data="{ items: ['One', 'Two', 'Three'] }">
          <template x-for="item in items">
            <p x-text="item"></p>

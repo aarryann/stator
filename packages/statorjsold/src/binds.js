@@ -43,7 +43,7 @@ export function applyBindingsObject(el, obj, original) {
 
   let staticAttributes = attributesOnly(attributes);
 
-  // Handle binding normal HTML attributes (non-Alpine directives). /// STATOR CUSTOMIZED
+  // Handle binding normal HTML attributes (non-Paradigm directives).
   attributes = attributes.map(attribute => {
     if (staticAttributes.find(attr => attr.name === attribute.name)) {
       return {

@@ -160,14 +160,14 @@ function attributeShouldntBePreservedIfFalsy(name) {
 }
 
 export function getBinding(el, name, fallback) {
-  // First let's get it out of Stator bound data. /// STATOR CUSTOMIZED
+  // First let's get it out of Stator bound data.
   if (el._x_bindings && el._x_bindings[name] !== undefined) return el._x_bindings[name];
 
   return getAttributeBinding(el, name, fallback);
 }
 
 export function extractProp(el, name, fallback, extract = true) {
-  // First let's get it out of Stator bound data. /// STATOR CUSTOMIZED
+  // First let's get it out of Stator bound data.
   if (el._x_bindings && el._x_bindings[name] !== undefined) return el._x_bindings[name];
 
   if (el._x_inlineBindings && el._x_inlineBindings[name] !== undefined) {

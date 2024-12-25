@@ -72,7 +72,7 @@ function set(obj, path, value) {
   if (typeof path === 'string') path = path.split('.');
 
   if (path.length === 1) obj[path[0]] = value;
-  else if (path.length === 0) throw new Error('Path cannot be empty'); /// STATOR CUSTOMIZED
+  else if (path.length === 0) throw new Error('Path cannot be empty');
   else {
     if (obj[path[0]]) return set(obj[path[0]], path.slice(1), value);
     else {

@@ -16,5 +16,5 @@ warnMissingPluginMagic('Focus', 'focus', 'focus');
 warnMissingPluginMagic('Persist', 'persist', 'persist');
 
 function warnMissingPluginMagic(name, magicName, slug) {
-  magic(magicName, el => warn(`You can't use [$${magicName}] without first installing the "${name}" plugin here: https://stator.io/plugins/${slug}`, el)); /// STATOR CUSTOMIZED
+  magic(magicName, el => warn(`You can't use [$${magicName}] without first installing the "${name}" plugin here: https://stator.io/plugins/${slug}`, el));
 }

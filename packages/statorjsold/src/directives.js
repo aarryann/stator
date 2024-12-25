@@ -1,7 +1,7 @@
 import { onAttributeRemoved, onElRemoved } from './mutation';
-import { evaluate, evaluateLater } from './evaluator'; /// STATOR CUSTOMIZABLE
+import { evaluate, evaluateLater } from './evaluator'; /// STATOR CUSTOMIZED
 import { elementBoundEffect } from './reactivity';
-import Stator from './main'; /// STATOR CUSTOMIZABLE
+import Stator from './stator'; /// STATOR CUSTOMIZED
 
 let prefixAsString = 'x-';
 
@@ -42,7 +42,7 @@ export function directives(el, attributes, originalAttributeOverride) {
 
     let staticAttributes = attributesOnly(vAttributes);
 
-    // Handle binding normal HTML attributes (non-paradigm directives). /// STATOR CUSTOMIZED
+    // Handle binding normal HTML attributes (non-paradigm directives).  /// STATOR CUSTOMIZED
     vAttributes = vAttributes.map(attribute => {
       if (staticAttributes.find(attr => attr.name === attribute.name)) {
         return {
@@ -115,7 +115,7 @@ export function getElementBoundUtilities(el) {
   cleanups.push(cleanupEffect);
 
   let utilities = {
-    Stator, /// STATOR CUSTOMIZABLE
+    Stator, /// STATOR CUSTOMIZED
     effect,
     cleanup,
     evaluateLater: evaluateLater.bind(evaluateLater, el),
