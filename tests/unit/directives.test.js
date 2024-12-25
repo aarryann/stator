@@ -33,12 +33,27 @@ beforeEach(() => {
 
 describe('Stator.js Directives Tests', () => {
   /// TODO: Test stator:init, initializing and initialized from lifecycle.js
+  it('x-data nesting test', () => {
+    mountHTML(`
+    <div x-data='{ "foo": "bar" }'>
+      <div x-data='{ "baz": "goo" }'>
+        <div x-data='{ "foo": "baz" }'>
+          <span id="bazSpan" x-text="concat('foo: ', foo)"></span>
+        </div>
+      </div>
+      <span id="barSpan" x-text="foo"></span>
+    </div>`);
+    const bazSpan = document.querySelector('#bazSpan');
+    const barSpan = document.querySelector('#barSpan');
+    expect(bazSpan.textContent).toBe('foo: baz');
+    expect(barSpan.textContent).toBe('bar');
+  });
+  /*
   it('x-data initializes correctly and binds data to the DOM', () => {
     mountHTML(`<div x-data='{ "foo": "bar" }'><span x-text="foo"></span></div>`);
     const span = document.querySelector('span');
     expect(span.textContent).toBe('bar');
   });
-
   it('x-bind dynamically binds attributes', () => {
     mountHTML(
       `<div x-data='{ "color": "red" }'>
@@ -46,9 +61,10 @@ describe('Stator.js Directives Tests', () => {
        </div>`
     );
     const element = document.querySelector('p');
+    console.log(element.outerHTML);
     expect(element.style.color).toBe('red');
   });
-  /*
+  
   it('x-on handles events', async () => {
     mountHTML(
       `<div x-data='{ "count": 0 }'>

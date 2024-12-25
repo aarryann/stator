@@ -4,6 +4,8 @@ import { tryCatch } from './utils/error';
 import { injectMagics } from './magics';
 import { Parser } from 'expr-eval'; // Import expr-eval
 
+let exprParser;
+
 export function exprEvaluator(el, expression) {
   let dataStack = generateDataStack(el);
 
@@ -25,12 +27,32 @@ function generateDataStack(el) {
   return [overriddenMagics, ...closestDataStack(el)];
 }
 
+function prepareScopeForExprEval(scope) {
+  const updatedScope = {};
+  scope.objects.forEach((obj, index) => {
+    Object.entries(obj).forEach(([key, value]) => {
+      // Create unique keys for each object property
+      updatedScope[`objects[${index}].${key}`] = value;
+    });
+  });
+  return updatedScope;
+}
+
+function getParser() {
+  if (!exprParser) {
+    exprParser = new Parser();
+    exprParser.functions.concat = (...args) => args.join('');
+  }
+  return exprParser;
+}
+
 function generateEvaluator(el, expression, dataStack) {
   // Create a parser for the expression
-  const parser = new Parser();
+  const parser = getParser();
 
   return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
     let completeScope = mergeProxies([scope, ...dataStack]);
+    let flattenedScope = Object.assign({}, scope, ...[...dataStack].reverse());
 
     let evaluatedExpression;
     try {
@@ -39,8 +61,9 @@ function generateEvaluator(el, expression, dataStack) {
       if (exprCheck.startsWith('{')) {
         evaluatedExpression = JSON.parse(exprCheck);
       } else {
-        const expr = parser.parse(expression);
-        evaluatedExpression = expr.evaluate(completeScope);
+        const updatedExpression = expression;
+        const expr = parser.parse(updatedExpression);
+        evaluatedExpression = expr.evaluate(flattenedScope);
       }
     } catch (e) {
       throwExpressionError(el, expression, e);
