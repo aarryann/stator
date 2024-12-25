@@ -6,6 +6,12 @@ import { warn } from './utils/warn';
 
 let started = false;
 
+/// STATOR CUSTOMIZED
+export function restart() {
+  started = false;
+  start();
+}
+
 export function start() {
   if (started) warn('Stator has already been initialized on this page. Calling Stator.start() more than once can cause problems.'); /// STATOR CUSTOMIZED
 

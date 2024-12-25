@@ -13,11 +13,12 @@ vi.mock('../../packages/statorjs/src/mutation', async () => {
   };
 });
 */
-function mountHTML(html, data = {}, postTreeCallback = () => {}) {
+function mountHTML(html, data = {}) {
   document.body.innerHTML = html;
-  //Stator.data('testComponent', () => data);
-  Stator.initTree(document.body.firstChild, undefined, undefined, postTreeCallback);
+  //Stator.initTree(document.body.firstChild, undefined, undefined);
+  Stator.restart();
 }
+
 beforeAll(() => {
   // Setup before each describe
   document.body.innerHTML = '<div></div>';
@@ -26,7 +27,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   // Clean up DOM before each test
-  Stator.destroyTree(document.body.firstChild);
+  Stator.destroyTree(document.body);
   document.body.innerHTML = '';
 });
 
@@ -140,12 +141,11 @@ describe('Stator.js Directives Tests', () => {
     expect(document.querySelector('[x-data]')._x_dataStack[0].submitted).toBe(true);
   });
 
-  /*
   it('x-transition applies transitions on show/hide', async () => {
     mountHTML(
-      `<div x-data="{ visible: false }">
+      `<div x-data="{ visible: false, i: 0 }">
          <p x-show="visible" x-transition>Transition Content</p>
-         <button @click="visible = !visible">Toggle</button>
+         <button @click="visible = !visible; i=i+1;">Toggle</button>
        </div>`
     );
 
@@ -154,16 +154,9 @@ describe('Stator.js Directives Tests', () => {
 
     expect(paragraph.style.display).toBe('none');
     await fireEvent.click(button);
+    await new Promise(r => setTimeout(r, 20)); // Adjust timeout to match transition duration
     expect(paragraph.style.display).not.toBe('none');
   });
-  */
-  /*
-  it('x-cloak is removed on initialization', () => {
-    mountHTML(`<div x-data x-cloak><p>Content</p></div>`);
-    const element = document.querySelector('[x-cloak]');
-    expect(element).toBeNull();
-  });
-  */
 
   it('Nested x-for loops render correctly', () => {
     mountHTML(
@@ -186,11 +179,124 @@ describe('Stator.js Directives Tests', () => {
     expect(paragraphs[3].textContent).toBe('D');
   });
 
+  it('binds a value to a DOM element correctly', () => {
+    mountHTML(
+      `<div x-data="{ color: 'blue' }">
+         <p x-bind:style="'color: ' + color"></p>
+       </div>`
+    );
+    const element = document.querySelector('p');
+    expect(element.style.color).toBe('blue');
+  });
+
   /*
-  it('stator:init is called during initialization', () => {
-    const spy = vi.fn();
-    mountHTML(`<div x-data="{ foo: 'bar' }" stator:init="spy()"></div>`, { spy });
-    expect(spy).toHaveBeenCalled();
+  it('deep clones an object correctly', () => {
+    const obj = { nested: { key: 'value' } };
+    const cloned = Stator.clone(obj);
+    cloned.nested.key = 'newValue';
+    expect(obj.nested.key).toBe('value'); // Ensure immutability
   });
   */
+  /*
+  it('entangles data between components', () => {
+    mountHTML(
+      `<div>
+         <div x-data="{ shared: 'value' }" id="parent"></div>
+         <div x-data="{ shared: $entangle('shared', '#parent') }">
+           <p x-text="shared"></p>
+         </div>
+       </div>`
+    );
+    const paragraph = document.querySelector('p');
+    expect(paragraph.textContent).toBe('value');
+  });
+  */
+  it('renders raw HTML using x-html', () => {
+    mountHTML(
+      `<div x-data="{ rawHTML: '<span>Rendered</span>' }">
+         <p x-html="rawHTML"></p>
+       </div>`
+    );
+    const renderedSpan = document.querySelector('p span');
+    expect(renderedSpan).not.toBeNull();
+    expect(renderedSpan.textContent).toBe('Rendered');
+  });
+  /*
+  it('teleports content to a specified location', () => {
+    document.body.innerHTML = '<div id="destination"></div>';
+    mountHTML(
+      `<div x-data>
+         <template x-teleport="#destination">
+           <p>Teleported Content</p>
+         </template>
+       </div>`
+    );
+    const destination = document.querySelector('#destination p');
+    expect(destination).not.toBeNull();
+    expect(destination.textContent).toBe('Teleported Content');
+  });
+  */
+  it('generates unique IDs using $id', () => {
+    mountHTML(
+      `<div x-data="{ id: $id('unique') }">
+         <p x-text="id"></p>
+       </div>`
+    );
+    const id = document.querySelector('p').textContent;
+    expect(id).toContain('unique');
+  });
+
+  it('resolves DOM elements using $refs', () => {
+    mountHTML(
+      `<div x-data>
+         <button x-ref="myButton">Click Me</button>
+         <p x-text="$refs.myButton.textContent"></p>
+       </div>`
+    );
+    const paragraph = document.querySelector('p');
+    expect(paragraph.textContent).toBe('Click Me');
+  });
+
+  it('debounces function calls', async () => {
+    let count = 0;
+    const debounced = Stator.debounce(() => count++, 100);
+    debounced();
+    debounced();
+    await new Promise(r => setTimeout(r, 150));
+    expect(count).toBe(1);
+  });
+
+  it('handles complex attribute bindings', () => {
+    mountHTML(`
+        <div x-data="{ attrs: { 'data-test': 'value', class: 'test', style: 'color: red' } }">
+          <div x-bind="attrs"></div>
+        </div>
+      `);
+
+    const div = document.querySelector('[x-bind]');
+    expect(div.dataset.test).toBe('value');
+    expect(div.classList.contains('test')).toBe(true);
+    expect(div.style.color).toBe('red');
+  });
+  it('handles class string transformations', async () => {
+    Stator.store('test', {
+      count: 0,
+      increment() {
+        this.count++;
+      }
+    });
+    mountHTML(`
+      <div x-data>
+        <button @click="$store.test.increment()">Increment</button>
+        <span x-text="$store.test.count"></span>
+      </div>
+    `);
+
+    const button = document.querySelector('button');
+    const span = document.querySelector('span');
+
+    button.click();
+    await new Promise(r => setTimeout(r, 10));
+    expect(span.textContent).toBe('1');
+  });
 });

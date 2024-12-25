@@ -1,6 +1,6 @@
 import { setReactivityEngine, disableEffectScheduling, reactive, effect, release, raw, watch } from './reactivity';
 import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed } from './directives';
-import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit } from './lifecycle';
+import { start, restart, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit } from './lifecycle'; /// STATOR CUSTOMIZED
 import { onElRemoved, onAttributeRemoved, onAttributesAdded, mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation';
 import { mergeProxies, closestDataStack, addScopeToNode, scope as $data } from './scope';
 import { setEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions } from './evaluator';
@@ -77,6 +77,7 @@ let Stator = {
   magic,
   store,
   start,
+  restart, /// STATOR CUSTOMIZED
   clone, // INTERNAL
   cloneNode, // INTERNAL
   bound,
