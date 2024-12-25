@@ -116,4 +116,81 @@ describe('Stator.js Directives Tests', () => {
     expect(paragraphs[1].textContent).toBe('Two');
     expect(paragraphs[2].textContent).toBe('Three');
   });
+
+  it('x-init runs initialization expressions', () => {
+    mountHTML(
+      `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz'">
+         <p x-text="foo"></p>
+       </div>`
+    );
+    const paragraph = document.querySelector('p');
+    expect(paragraph.textContent).toBe('baz');
+  });
+
+  it('x-on with .prevent stops default action', async () => {
+    mountHTML(
+      `<div x-data="{ submitted: false }">
+         <form @submit.prevent="submitted = true">
+           <button type="submit">Submit</button>
+         </form>
+       </div>`
+    );
+    const button = document.querySelector('button');
+    await fireEvent.click(button);
+    expect(document.querySelector('[x-data]')._x_dataStack[0].submitted).toBe(true);
+  });
+
+  /*
+  it('x-transition applies transitions on show/hide', async () => {
+    mountHTML(
+      `<div x-data="{ visible: false }">
+         <p x-show="visible" x-transition>Transition Content</p>
+         <button @click="visible = !visible">Toggle</button>
+       </div>`
+    );
+
+    const paragraph = document.querySelector('p');
+    const button = document.querySelector('button');
+
+    expect(paragraph.style.display).toBe('none');
+    await fireEvent.click(button);
+    expect(paragraph.style.display).not.toBe('none');
+  });
+  */
+  /*
+  it('x-cloak is removed on initialization', () => {
+    mountHTML(`<div x-data x-cloak><p>Content</p></div>`);
+    const element = document.querySelector('[x-cloak]');
+    expect(element).toBeNull();
+  });
+  */
+
+  it('Nested x-for loops render correctly', () => {
+    mountHTML(
+      `<div x-data="{ lists: [{ items: ['A', 'B'] }, { items: ['C', 'D'] }] }">
+         <template x-for="list in lists">
+           <div>
+             <template x-for="item in list.items">
+               <p x-text="item"></p>
+             </template>
+           </div>
+         </template>
+       </div>`
+    );
+
+    const paragraphs = document.querySelectorAll('p');
+    expect(paragraphs.length).toBe(4);
+    expect(paragraphs[0].textContent).toBe('A');
+    expect(paragraphs[1].textContent).toBe('B');
+    expect(paragraphs[2].textContent).toBe('C');
+    expect(paragraphs[3].textContent).toBe('D');
+  });
+
+  /*
+  it('stator:init is called during initialization', () => {
+    const spy = vi.fn();
+    mountHTML(`<div x-data="{ foo: 'bar' }" stator:init="spy()"></div>`, { spy });
+    expect(spy).toHaveBeenCalled();
+  });
+  */
 });
