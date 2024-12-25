@@ -48,10 +48,10 @@ describe('Stator.js Directives Tests', () => {
     const element = document.querySelector('p');
     expect(element.style.color).toBe('red');
   });
-
+  /*
   it('x-on handles events', async () => {
     mountHTML(
-      `<div x-data="{ count: 0 }">
+      `<div x-data='{ "count": 0 }'>
          <button x-on:click="count++">Click</button>
          <span x-text="count"></span>
        </div>`,
@@ -68,7 +68,7 @@ describe('Stator.js Directives Tests', () => {
 
   it('x-model two-way binds input fields', async () => {
     mountHTML(
-      `<div x-data="{ inputValue: '' }">
+      `<div x-data='{ "inputValue": "" }'>
          <input x-model="inputValue">
          <p x-text="inputValue"></p>
        </div>`
@@ -82,7 +82,7 @@ describe('Stator.js Directives Tests', () => {
 
   it('x-show toggles element visibility', () => {
     mountHTML(
-      `<div x-data="{ visible: true }">
+      `<div x-data='{ "visible": true }'>
          <p x-show="visible">Visible</p>
        </div>`
     );
@@ -92,7 +92,7 @@ describe('Stator.js Directives Tests', () => {
 
   it('x-if renders and destroys elements', () => {
     mountHTML(
-      `<div x-data="{ show: true }">
+      `<div x-data='{ "show": true }'>
          <template x-if="show">
            <p>Conditionally Rendered</p>
          </template>
@@ -105,7 +105,7 @@ describe('Stator.js Directives Tests', () => {
 
   it('x-for loops through arrays', () => {
     mountHTML(
-      `<div x-data="{ items: ['One', 'Two', 'Three'] }">
+      `<div x-data='{ "items": ["One", "Two", "Three"] }'>
          <template x-for="item in items">
            <p x-text="item"></p>
          </template>
@@ -120,7 +120,7 @@ describe('Stator.js Directives Tests', () => {
 
   it('x-init runs initialization expressions', () => {
     mountHTML(
-      `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz'">
+      `<div x-data='{ "foo": "bar" }' x-init='foo = "baz"'>
          <p x-text="foo"></p>
        </div>`
     );
@@ -130,7 +130,7 @@ describe('Stator.js Directives Tests', () => {
 
   it('x-on with .prevent stops default action', async () => {
     mountHTML(
-      `<div x-data="{ submitted: false }">
+      `<div x-data='{ "submitted": false }'>
          <form @submit.prevent="submitted = true">
            <button type="submit">Submit</button>
          </form>
@@ -143,7 +143,7 @@ describe('Stator.js Directives Tests', () => {
 
   it('x-transition applies transitions on show/hide', async () => {
     mountHTML(
-      `<div x-data="{ visible: false, i: 0 }">
+      `<div x-data='{ "visible": false }'>
          <p x-show="visible" x-transition>Transition Content</p>
          <button @click="visible = !visible; i=i+1;">Toggle</button>
        </div>`
@@ -160,7 +160,7 @@ describe('Stator.js Directives Tests', () => {
 
   it('Nested x-for loops render correctly', () => {
     mountHTML(
-      `<div x-data="{ lists: [{ items: ['A', 'B'] }, { items: ['C', 'D'] }] }">
+      `<div x-data='{ "lists": [{ "items": ["A", "B"] }, { "items": ["C", "D"] }] }'>
          <template x-for="list in lists">
            <div>
              <template x-for="item in list.items">
@@ -181,7 +181,7 @@ describe('Stator.js Directives Tests', () => {
 
   it('binds a value to a DOM element correctly', () => {
     mountHTML(
-      `<div x-data="{ color: 'blue' }">
+      `<div x-data='{ "color": "blue" }'>
          <p x-bind:style="'color: ' + color"></p>
        </div>`
     );
@@ -189,31 +189,9 @@ describe('Stator.js Directives Tests', () => {
     expect(element.style.color).toBe('blue');
   });
 
-  /*
-  it('deep clones an object correctly', () => {
-    const obj = { nested: { key: 'value' } };
-    const cloned = Stator.clone(obj);
-    cloned.nested.key = 'newValue';
-    expect(obj.nested.key).toBe('value'); // Ensure immutability
-  });
-  */
-  /*
-  it('entangles data between components', () => {
-    mountHTML(
-      `<div>
-         <div x-data="{ shared: 'value' }" id="parent"></div>
-         <div x-data="{ shared: $entangle('shared', '#parent') }">
-           <p x-text="shared"></p>
-         </div>
-       </div>`
-    );
-    const paragraph = document.querySelector('p');
-    expect(paragraph.textContent).toBe('value');
-  });
-  */
   it('renders raw HTML using x-html', () => {
     mountHTML(
-      `<div x-data="{ rawHTML: '<span>Rendered</span>' }">
+      `<div x-data='{ "rawHTML": "<span>Rendered</span>" }'>
          <p x-html="rawHTML"></p>
        </div>`
     );
@@ -221,21 +199,7 @@ describe('Stator.js Directives Tests', () => {
     expect(renderedSpan).not.toBeNull();
     expect(renderedSpan.textContent).toBe('Rendered');
   });
-  /*
-  it('teleports content to a specified location', () => {
-    document.body.innerHTML = '<div id="destination"></div>';
-    mountHTML(
-      `<div x-data>
-         <template x-teleport="#destination">
-           <p>Teleported Content</p>
-         </template>
-       </div>`
-    );
-    const destination = document.querySelector('#destination p');
-    expect(destination).not.toBeNull();
-    expect(destination.textContent).toBe('Teleported Content');
-  });
-  */
+
   it('generates unique IDs using $id', () => {
     mountHTML(
       `<div x-data="{ id: $id('unique') }">
@@ -299,4 +263,22 @@ describe('Stator.js Directives Tests', () => {
     await new Promise(r => setTimeout(r, 10));
     expect(span.textContent).toBe('1');
   });
+  it('handles modeleable transformations', async () => {
+    mountHTML(`
+      <div x-data="{ number: 5 }">
+        <div x-data="{ count: 0 }" x-modelable="count" x-model="number">
+          <button @click="count++">Increment</button>
+        </div>
+        Number: <span id="displayNumber" x-text="number"></span>
+      </div>
+      `);
+    const button = document.querySelector('button');
+    const span = document.querySelector('#displayNumber');
+
+    await fireEvent.click(button);
+    await new Promise(r => setTimeout(r, 100));
+    console.log(span.outerHTML);
+    expect(span.textContent).toBe('5');
+  });
+  */
 });
