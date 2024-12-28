@@ -65,7 +65,7 @@ function generateFunctionFromString(expression, el) {
 
   // Some expressions that are useful in Stator are not valid as the right side of an expression.
   // Here we'll detect if the expression isn't valid for an assignment and wrap it in a self-
-  // calling function so that we don't throw an error AND a "return" statement can b e used.
+  // calling function so that we don't throw an error AND a "return" statement can be used.
   let rightSideSafeExpression =
     0 || // eslint-disable-line
     // Support expressions starting with "if" statements like: "if (...) doSomething()"
