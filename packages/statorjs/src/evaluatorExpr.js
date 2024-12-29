@@ -42,7 +42,6 @@ function generateEvaluator(el, expression, dataStack) {
 
   return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
     let completeScope = mergeProxies([scope, ...dataStack]);
-    //console.log(completeScope);
     let flattenedScope = Object.assign({}, scope, ...[...dataStack].reverse());
 
     let evaluatedExpression;
@@ -50,15 +49,11 @@ function generateEvaluator(el, expression, dataStack) {
       // Parse and evaluate the expression with expr-eval
       const exprStr = expression.trim();
       if (exprStr.startsWith('{')) {
-        //evaluatedExpression = JSON.parse(exprStr);
         evaluatedExpression = toJson(exprStr);
       } else {
         const updatedExpression = expression;
         const expr = parser.parse(updatedExpression);
         evaluatedExpression = expr.evaluate(flattenedScope);
-        console.log(10);
-        console.log(completeScope);
-        console.log(evaluatedExpression);
       }
     } catch (e) {
       throwExpressionError(el, expression, e);

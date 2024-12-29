@@ -23,9 +23,9 @@ import Stator from './main'; /// STATOR CUSTOMIZABLE
  * It's the function that converts raw JavaScript string
  * expressions like @click="toggle()", into actual JS.
  */
-import { normalEvaluator, cspEvaluator, exprEvaluator } from './evaluator'; /// STATOR CUSTOMIZABLE
+import { normalEvaluator, cspEvaluator, exprEvaluator, workerEvaluator } from './evaluator'; /// STATOR CUSTOMIZABLE
 
-Stator.setEvaluator(exprEvaluator); /// STATOR CUSTOMIZABLE
+Stator.setEvaluator(workerEvaluator); /// STATOR CUSTOMIZABLE
 
 /**
  * _______________________________________________________

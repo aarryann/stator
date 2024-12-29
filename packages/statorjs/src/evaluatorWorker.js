@@ -7,7 +7,7 @@ import { Parser } from 'expr-eval'; // Import expr-eval
 
 let exprParser;
 
-export function exprEvaluator(el, expression) {
+export function workerEvaluator(el, expression) {
   let dataStack = generateDataStack(el);
 
   // Return if the provided expression is already a function...
