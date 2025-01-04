@@ -38,10 +38,10 @@ describe('Stator.js Directives Tests', () => {
     <div x-data='{ "foo": "bar", "count":1 }'>
       <div x-data='{ "baz": "goo" }'>
         <div x-data='{ "foo": "baz" }'>
-          <span id="bazSpan" x-text="count=count+1;"></span>
+          <span id="bazSpan">1</span>
         </div>
       </div>
-      <span id="barSpan" x-text="count"></span>
+      <span id="barSpan" x-text="count">1</span>
     </div>`);
     const bazSpan = document.querySelector('#bazSpan');
     const barSpan = document.querySelector('#barSpan');

@@ -3,7 +3,6 @@ import { closestDataStack, mergeProxies } from './scope';
 import { tryCatch } from './utils/error';
 import { toJson } from './utils/toJson';
 import { injectMagics } from './magics';
-import { Parser } from 'expr-eval'; // Import expr-eval
 
 let exprParser;
 
@@ -28,36 +27,18 @@ function generateDataStack(el) {
   return [overriddenMagics, ...closestDataStack(el)];
 }
 
-function getParser() {
-  if (!exprParser) {
-    exprParser = new Parser();
-    exprParser.functions.concat = (...args) => args.join('');
-  }
-  return exprParser;
-}
-
 function generateEvaluator(el, expression, dataStack) {
-  // Create a parser for the expression
-  const parser = getParser();
-
-  return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
+  return async (receiver = () => {}, { scope = {}, params = [] } = {}) => {
     let completeScope = mergeProxies([scope, ...dataStack]);
-    //console.log(completeScope);
-    let flattenedScope = Object.assign({}, scope, ...[...dataStack].reverse());
 
     let evaluatedExpression;
     try {
       // Parse and evaluate the expression with expr-eval
       const exprStr = expression.trim();
       if (exprStr.startsWith('{')) {
-        //evaluatedExpression = JSON.parse(exprStr);
         evaluatedExpression = toJson(exprStr);
       } else {
-        const updatedExpression = expression;
-        const expr = parser.parse(updatedExpression);
-        evaluatedExpression = expr.evaluate(flattenedScope);
-        console.log(10);
-        console.log(completeScope);
+        evaluatedExpression = await sendMessageToWorker(expression, completeScope);
         console.log(evaluatedExpression);
       }
     } catch (e) {
@@ -65,27 +46,8 @@ function generateEvaluator(el, expression, dataStack) {
       return;
     }
 
-    runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params, el);
+    //runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params, el);
   };
-}
-
-function runExprEvaluator(expression, completeScope) {
-  if (!exprParser) {
-    exprParser = new Parser();
-    exprParser.functions.concat = (...args) => args.join('');
-  }
-
-  const exprArr = expression.split(';');
-  let evaluatedExpression;
-  if (/^[\n\s]*if.*\(.*\)/.test(expression.trim())) {
-    const parsedExpr = exprParser.parse(expression);
-    evaluatedExpression = expression.evaluate(completeScope);
-  } else {
-    exprArr.array.forEach(expr => {
-      const parsedExpr = exprParser.parse(expr);
-      evaluatedExpression = expr.evaluate(completeScope);
-    });
-  }
 }
 
 function extractVariableNames(expression) {
@@ -184,31 +146,24 @@ export function createWorker(script) {
   return new Worker(URL.createObjectURL(blob));
 }
 
-const evaluateExpression = (expression, scope) => {
-  if (!evalWorker) {
-    evalWorker = createWorker(workerScript);
-  }
-  sendMessageToWorker(evalWorker, expression, scope);
-};
-
 const terminateWorker = evalWorker => {
   evalWorker.terminate();
   evalWorker = null;
 };
 
-const sendMessageToWorker = (worker, expression, scope) => {
+const sendMessageToWorker = (expression, scope) => {
   if (!evalWorker) {
     evalWorker = createWorker(workerScript);
   }
   return new Promise((resolve, reject) => {
-    worker.onmessage = event => {
+    evalWorker.onmessage = event => {
       if (event.data.error) {
         reject(event.data.error);
       } else {
         resolve(event.data.result);
       }
     };
-    worker.postMessage({ expression, scope });
+    evalWorker.postMessage({ expression, scope });
   });
 };
 
