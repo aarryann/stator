@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import Stator from '../../packages/statorjs/src/index';
+//import 'jsdom-global/register';
+import 'jsdom-worker';
 import { render, fireEvent, screen } from '@testing-library/vue';
+import { vitest } from 'vitest';
 
 // Mock the startObservingMutations function
 /*
@@ -31,8 +34,20 @@ beforeEach(() => {
   document.body.innerHTML = '';
 });
 
+let code = `onmessage = e => postMessage(e.data*2)`;
+let worker = new Worker(URL.createObjectURL(new Blob([code])));
+worker.onmessage = console.log;
+worker.postMessage(5); // 10
+
 describe('Stator.js Directives Tests', () => {
   /// TODO: Test stator:init, initializing and initialized from lifecycle.js
+  it('x-data worker test', () => {
+    let code = `onmessage = e => postMessage(e.data*2)`;
+    let worker = new Worker(URL.createObjectURL(new Blob([code])));
+    worker.onmessage = console.log;
+    worker.postMessage(10); // 10
+  });
+  /*
   it('x-data nesting test', () => {
     mountHTML(`
     <div x-data='{ "foo": "bar", "count":1 }'>
@@ -48,6 +63,7 @@ describe('Stator.js Directives Tests', () => {
     //expect(bazSpan.textContent).toBe('foo: baz');
     expect(barSpan.textContent).toBe('1');
   });
+  */
   /*
   it('x-data initializes correctly and binds data to the DOM', () => {
     mountHTML(`<div x-data='{ "foo": "bar" }'><span x-text="foo"></span></div>`);

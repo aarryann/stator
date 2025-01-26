@@ -102,6 +102,7 @@ export const workerScript = `
   let evaluatorMemo = {};
   self.onmessage = function(e) {
     const { expression, scope } = e.data;
+    console.log('=====');
     if (!evaluatorMemo[expression]) {
       let AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
       let rightSideSafeExpression =
@@ -149,6 +150,13 @@ export function createWorker(script) {
 const terminateWorker = evalWorker => {
   evalWorker.terminate();
   evalWorker = null;
+};
+
+const sendMessageToWorker1 = (expression, scope) => {
+  let code = `onmessage = e => postMessage(e.data*2)`;
+  let worker = new Worker(URL.createObjectURL(new Blob([code])));
+  worker.postMessage(10); // 10
+  worker.onmessage = console.log;
 };
 
 const sendMessageToWorker = (expression, scope) => {
