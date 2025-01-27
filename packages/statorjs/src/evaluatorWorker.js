@@ -98,15 +98,16 @@ function extractScopeVariables(expression) {
   return Array.from(variables); // Return the variables as an array
 }
 
+export const workerScript1 = `onmessage = e => {console.log(e); return postMessage(e.data*2)}`;
+
 export const workerScript = `
   let evaluatorMemo = {};
   self.onmessage = function(e) {
     const { expression, scope } = e.data;
-    console.log('=====');
     if (!evaluatorMemo[expression]) {
       let AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
       let rightSideSafeExpression =
-        /^[\n\s]*if.*\(.*\)/.test(expression.trim()) ||
+        /^[\\n\s]*if.*\(.*\)/.test(expression.trim()) ||
         /^(let|const)\s/.test(expression.trim())
           ? \`(async()=>{ \${expression} })()\`
           : expression;
@@ -144,7 +145,8 @@ export const workerScript = `
 let evalWorker;
 export function createWorker(script) {
   const blob = new Blob([script], { type: 'application/javascript' });
-  return new Worker(URL.createObjectURL(blob));
+  //return new Worker(URL.createObjectURL(blob));
+  return new Worker(URL.createObjectURL(new Blob([script])));
 }
 
 const terminateWorker = evalWorker => {
@@ -163,6 +165,9 @@ const sendMessageToWorker = (expression, scope) => {
   if (!evalWorker) {
     evalWorker = createWorker(workerScript);
   }
+  console.log(1);
+  console.log(scope.get('count'));
+  evalWorker.postMessage({ expression, scope });
   return new Promise((resolve, reject) => {
     evalWorker.onmessage = event => {
       if (event.data.error) {
@@ -171,7 +176,6 @@ const sendMessageToWorker = (expression, scope) => {
         resolve(event.data.result);
       }
     };
-    evalWorker.postMessage({ expression, scope });
   });
 };
 
