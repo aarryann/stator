@@ -3,11 +3,15 @@ import { closestDataStack, mergeProxies } from './scope';
 import { tryCatch } from './utils/error';
 import { toJson } from './utils/toJson';
 import { injectMagics } from './magics';
+import { data } from './datas';
 
 let exprParser;
 
 export function workerEvaluator(el, expression) {
+  console.log('workerevaluator==================');
+
   let dataStack = generateDataStack(el);
+  console.log(dataStack);
 
   // Return if the provided expression is already a function...
   if (typeof expression === 'function') {
@@ -15,6 +19,7 @@ export function workerEvaluator(el, expression) {
   }
 
   let evaluator = generateEvaluator(el, expression, dataStack);
+  console.log(evaluator);
 
   return tryCatch.bind(null, el, expression, evaluator);
 }
@@ -28,7 +33,7 @@ function generateDataStack(el) {
 }
 
 function generateEvaluator(el, expression, dataStack) {
-  return async (receiver = () => {}, { scope = {}, params = [] } = {}) => {
+  return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
     let completeScope = mergeProxies([scope, ...dataStack]);
 
     let evaluatedExpression;
@@ -38,8 +43,7 @@ function generateEvaluator(el, expression, dataStack) {
       if (exprStr.startsWith('{')) {
         evaluatedExpression = toJson(exprStr);
       } else {
-        evaluatedExpression = await sendMessageToWorker(expression, completeScope);
-        console.log(evaluatedExpression);
+        //evaluatedExpression = await sendMessageToWorker(expression, completeScope);
       }
     } catch (e) {
       throwExpressionError(el, expression, e);
@@ -165,8 +169,6 @@ const sendMessageToWorker = (expression, scope) => {
   if (!evalWorker) {
     evalWorker = createWorker(workerScript);
   }
-  console.log(1);
-  console.log(scope.get('count'));
   evalWorker.postMessage({ expression, scope });
   return new Promise((resolve, reject) => {
     evalWorker.onmessage = event => {

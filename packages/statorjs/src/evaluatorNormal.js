@@ -35,6 +35,7 @@ export function setEvaluator(newEvaluator) {
 }
 
 export function normalEvaluator(el, expression) {
+  console.log('normalevaluator==================');
   let overriddenMagics = {};
 
   injectMagics(overriddenMagics, el);
@@ -42,6 +43,7 @@ export function normalEvaluator(el, expression) {
   let dataStack = [overriddenMagics, ...closestDataStack(el)];
 
   let evaluator = typeof expression === 'function' ? generateEvaluatorFromFunction(dataStack, expression) : generateEvaluatorFromString(dataStack, expression, el);
+  console.log(evaluator);
 
   return tryCatch.bind(null, el, expression, evaluator);
 }

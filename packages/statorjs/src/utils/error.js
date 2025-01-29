@@ -1,4 +1,7 @@
 export function tryCatch(el, expression, callback, ...args) {
+  console.log(5);
+  console.log(args);
+  console.log(6);
   try {
     return callback(...args);
   } catch (e) {

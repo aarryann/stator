@@ -25,7 +25,8 @@ import Stator from './main'; /// STATOR CUSTOMIZABLE
  */
 import { normalEvaluator, cspEvaluator, exprEvaluator, workerEvaluator } from './evaluator'; /// STATOR CUSTOMIZABLE
 
-Stator.setEvaluator(workerEvaluator); /// STATOR CUSTOMIZABLE
+//Stator.setEvaluator(workerEvaluator); /// STATOR CUSTOMIZABLE
+Stator.setEvaluator(normalEvaluator); /// STATOR CUSTOMIZABLE
 
 /**
  * _______________________________________________________
