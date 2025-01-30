@@ -48,16 +48,17 @@ describe('Stator.js Directives Tests', () => {
     mountHTML(`
     <div x-data='{ "foo": "bar", "count":1 }'>
       <div x-data='{ "baz": "goo" }'>
-        <div x-data='{ "foo": "baz" }'>
-          <span id="bazSpan">1</span>
+        <div x-data='{ "foo": baz }'>
+          <span id="bazSpan" x-text="foo">1</span>
         </div>
       </div>
-      <span id="barSpan" x-text="count">1</span>
+      <span id="barSpan" x-text="foo">2</span>
     </div>`);
+
     const bazSpan = document.querySelector('#bazSpan');
     const barSpan = document.querySelector('#barSpan');
-    //expect(bazSpan.textContent).toBe('foo: baz');
-    expect(barSpan.textContent).toBe('1');
+    expect(barSpan.textContent).toBe('bar');
+    expect(bazSpan.textContent).toBe('goo');
   });
 
   /*

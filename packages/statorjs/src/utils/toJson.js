@@ -1,4 +1,4 @@
-export function toJson(jsonLikeData) {
+export function toJson(jsonLikeData, scope = {}) {
   if (!(jsonLikeData.startsWith('{') && jsonLikeData.endsWith('}'))) {
     throw new Error('E001: Input must start and end with curly braces.');
   }
@@ -50,8 +50,8 @@ export function toJson(jsonLikeData) {
     const key = match[2];
     let value = match[3].trim();
 
-    // Parse value: handle numbers, booleans, null, or quoted strings
-    if (/^["'].*["']$/.test(value)) {
+    // Parse value: handle numbers, booleans, null, quoted strings, or evaluate from scope
+    if (/^['"].*['"]$/.test(value)) {
       value = value.slice(1, -1); // Remove quotes
     } else if (/^\d+(\.\d+)?$/.test(value)) {
       value = parseFloat(value); // Convert numeric strings to numbers
@@ -59,8 +59,10 @@ export function toJson(jsonLikeData) {
       value = value === 'true'; // Convert "true"/"false" to boolean
     } else if (value === 'null') {
       value = null; // Convert "null" to null
+    } else if (value in scope) {
+      value = scope[value]; // Retrieve value from scope
     } else {
-      throw new Error(`E003: Unsupported value format: "${value}"`);
+      throw new Error(`E003: Unsupported value format or undefined variable: "${value}"`);
     }
 
     jsonObj[key] = value;

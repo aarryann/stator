@@ -1,6 +1,6 @@
 import { generateEvaluatorFromFunction, runIfTypeOfFunction } from './evaluatorNormal';
 import { closestDataStack, mergeProxies } from './scope';
-import { tryCatch } from './utils/error';
+import { tryCatch, handleError } from './utils/error';
 import { toJson } from './utils/toJson';
 import { injectMagics } from './magics';
 import { data } from './datas';
@@ -8,18 +8,14 @@ import { data } from './datas';
 let exprParser;
 
 export function workerEvaluator(el, expression) {
-  console.log('workerevaluator==================');
-
   let dataStack = generateDataStack(el);
-  console.log(dataStack);
 
   // Return if the provided expression is already a function...
   if (typeof expression === 'function') {
     return generateEvaluatorFromFunction(dataStack, expression);
   }
 
-  let evaluator = generateEvaluator(el, expression, dataStack);
-  console.log(evaluator);
+  let evaluator = generateEvaluatorSync(el, expression, dataStack);
 
   return tryCatch.bind(null, el, expression, evaluator);
 }
@@ -32,7 +28,31 @@ function generateDataStack(el) {
   return [overriddenMagics, ...closestDataStack(el)];
 }
 
-function generateEvaluator(el, expression, dataStack) {
+function generateEvaluatorAsync(el, expression, dataStack) {
+  return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
+    let completeScope = mergeProxies([scope, ...dataStack]);
+
+    try {
+      // Parse and evaluate the expression with expr-eval
+      const exprStr = expression.trim();
+      if (exprStr.startsWith('{')) {
+        const evaluatedExpression = toJson(exprStr, completeScope);
+        runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params, el);
+      } else {
+        sendMessageToWorkerAsync(expression, completeScope)
+          .then(evaluatedExpression => {
+            runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params, el);
+          })
+          .catch(error => handleError(error, el, expression));
+      }
+    } catch (e) {
+      throwExpressionError(el, expression, e);
+      return;
+    }
+  };
+}
+
+function generateEvaluatorSync(el, expression, dataStack) {
   return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
     let completeScope = mergeProxies([scope, ...dataStack]);
 
@@ -41,16 +61,16 @@ function generateEvaluator(el, expression, dataStack) {
       // Parse and evaluate the expression with expr-eval
       const exprStr = expression.trim();
       if (exprStr.startsWith('{')) {
-        evaluatedExpression = toJson(exprStr);
+        evaluatedExpression = toJson(exprStr, completeScope);
       } else {
-        //evaluatedExpression = await sendMessageToWorker(expression, completeScope);
+        evaluatedExpression = sendMessageToWorkerGenerator(expression, completeScope);
       }
     } catch (e) {
       throwExpressionError(el, expression, e);
       return;
     }
 
-    //runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params, el);
+    runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params, el);
   };
 }
 
@@ -106,42 +126,34 @@ export const workerScript1 = `onmessage = e => {console.log(e); return postMessa
 
 export const workerScript = `
   let evaluatorMemo = {};
-  self.onmessage = function(e) {
-    const { expression, scope } = e.data;
-    if (!evaluatorMemo[expression]) {
-      let AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-      let rightSideSafeExpression =
-        /^[\\n\s]*if.*\(.*\)/.test(expression.trim()) ||
-        /^(let|const)\s/.test(expression.trim())
-          ? \`(async()=>{ \${expression} })()\`
-          : expression;
 
-      try {
-        let func = new AsyncFunction(['scope'], \`with (scope) { return \${rightSideSafeExpression} }\`);
-        evaluatorMemo[expression] = func;
-      } catch (error) {
-        self.postMessage({ success: false, error: error.message });
-        return;
-      }
-    }
-    let func = evaluatorMemo[expression];
+  self.onmessage = function(e) {
+    const { expression, scope, id } = e.data;
 
     try {
+      if (!evaluatorMemo[expression]) {
+        let AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+        let rightSideSafeExpression =
+          /^[\\n\s]*if.*\(.*\)/.test(expression.trim()) ||
+          /^(let|const)\s/.test(expression.trim())
+            ? \`(async()=>{ \${expression} })()\`
+            : expression;
+
+        evaluatorMemo[expression] = new AsyncFunction(['scope'], \`with (scope) { return \${rightSideSafeExpression} }\`);
+      }
+
+      let func = evaluatorMemo[expression];
       let result = func(scope);
 
-      if (result instanceof Promise) {
-        result
-          .then(resolvedValue => {
-            self.postMessage({ success: true, result: resolvedValue });
-          })
-          .catch(error => {
-            self.postMessage({ success: false, error: error.message });
-          });
-      } else {
-        self.postMessage({ success: true, result });
-      }
+      Promise.resolve(result)
+        .then(value => {
+          self.postMessage({ id, success: true, result: value });
+        })
+        .catch(error => {
+          self.postMessage({ id, success: false, error: error.message });
+        });
     } catch (error) {
-      self.postMessage({ success: false, error: error.message });
+      self.postMessage({ id, success: false, error: error.message });
     }
   };
 `;
@@ -149,23 +161,59 @@ export const workerScript = `
 let evalWorker;
 export function createWorker(script) {
   const blob = new Blob([script], { type: 'application/javascript' });
-  //return new Worker(URL.createObjectURL(blob));
-  return new Worker(URL.createObjectURL(new Blob([script])));
+  return new Worker(URL.createObjectURL(blob));
 }
+
+const sendMessageToWorker = (expression, scope) => {
+  if (!evalWorker) {
+    evalWorker = createWorker(workerScript);
+  }
+  const lock = new Int32Array(new SharedArrayBuffer(4));
+  Atomics.store(lock, 0, 0);
+  let result, error;
+  let done = false;
+  evalWorker.onmessage = event => {
+    if (event.data.error) {
+      error = event.data.error;
+    } else {
+      result = event.data.result;
+    }
+    done = true;
+  };
+  evalWorker.postMessage({ expression, scope, lock });
+
+  Atomics.wait(lock, 0, 0); // Blocks until worker signals completion
+
+  if (error) throw new Error(error);
+  return result;
+};
 
 const terminateWorker = evalWorker => {
   evalWorker.terminate();
   evalWorker = null;
 };
 
-const sendMessageToWorker1 = (expression, scope) => {
-  let code = `onmessage = e => postMessage(e.data*2)`;
-  let worker = new Worker(URL.createObjectURL(new Blob([code])));
-  worker.postMessage(10); // 10
-  worker.onmessage = console.log;
-};
+function sendMessageToWorkerSync(expression, scope) {
+  if (!evalWorker) {
+    evalWorker = createWorker(workerScript);
+  }
+  let workerTask = { done: false, result: null, error: null };
+  evalWorker.onmessage = event => {
+    if (event.data.error) {
+      workerTask.error = event.data.error;
+    } else {
+      workerTask.result = event.data.result;
+    }
+    workerTask.done = true;
+  };
+  evalWorker.postMessage({ expression, scope });
 
-const sendMessageToWorker = (expression, scope) => {
+  //if (error) throw new Error(error);
+
+  return workerTask;
+}
+
+const sendMessageToWorkerAsync = (expression, scope) => {
   if (!evalWorker) {
     evalWorker = createWorker(workerScript);
   }
@@ -194,3 +242,50 @@ function throwExpressionError(el, expression, error) {
     el
   );
 }
+
+let currentId = 100;
+const pendingRequests = new Map();
+
+function setupWorker() {
+  if (!evalWorker) {
+    evalWorker = createWorker(workerScript);
+  }
+}
+
+export function* evaluateExpression(expression, scope) {
+  setupWorker();
+  evalWorker.onmessage = event => {
+    const { id, success, result, error } = event.data;
+    const generator = pendingRequests.get(id);
+    if (generator) {
+      if (success) {
+        generator.next(result);
+      } else {
+        generator.throw(new Error(error));
+      }
+      pendingRequests.delete(id);
+    }
+  };
+
+  const id = currentId++;
+  const generator = yield;
+  pendingRequests.set(id, generator);
+
+  evalWorker.postMessage({ expression, scope, id });
+  const result = yield;
+  yield;
+  return result;
+}
+
+export const runEvaluation = (expression, scope) => {
+  const generator = evaluateExpression(expression, scope);
+  generator.next(); // Start generator
+  generator.next(generator); // Pass generator instance back in
+  return generator;
+};
+
+export const sendMessageToWorkerGenerator = (expression, scope) => {
+  const { value, done } = runEvaluation(expression, scope).next();
+
+  return value;
+};

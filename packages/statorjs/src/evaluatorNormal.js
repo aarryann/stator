@@ -35,7 +35,6 @@ export function setEvaluator(newEvaluator) {
 }
 
 export function normalEvaluator(el, expression) {
-  console.log('normalevaluator==================');
   let overriddenMagics = {};
 
   injectMagics(overriddenMagics, el);
@@ -43,7 +42,6 @@ export function normalEvaluator(el, expression) {
   let dataStack = [overriddenMagics, ...closestDataStack(el)];
 
   let evaluator = typeof expression === 'function' ? generateEvaluatorFromFunction(dataStack, expression) : generateEvaluatorFromString(dataStack, expression, el);
-  console.log(evaluator);
 
   return tryCatch.bind(null, el, expression, evaluator);
 }
@@ -65,7 +63,7 @@ function generateFunctionFromString(expression, el) {
 
   let AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
-  // Some expressions that are useful in Stator are not valid as the right side of an expression.
+  // Some expressions that are useful in Stator are not valid as the right side of an expression. /// STATOR CUSTOMIZED
   // Here we'll detect if the expression isn't valid for an assignment and wrap it in a self-
   // calling function so that we don't throw an error AND a "return" statement can be used.
   let rightSideSafeExpression =

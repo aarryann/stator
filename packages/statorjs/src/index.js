@@ -23,10 +23,10 @@ import Stator from './main'; /// STATOR CUSTOMIZABLE
  * It's the function that converts raw JavaScript string
  * expressions like @click="toggle()", into actual JS.
  */
-import { normalEvaluator, cspEvaluator, exprEvaluator, workerEvaluator } from './evaluator'; /// STATOR CUSTOMIZABLE
+import { normalEvaluator, cspEvaluator, exprEvaluator, workerEvaluator, ngEvaluator } from './evaluator'; /// STATOR CUSTOMIZED
 
-//Stator.setEvaluator(workerEvaluator); /// STATOR CUSTOMIZABLE
-Stator.setEvaluator(normalEvaluator); /// STATOR CUSTOMIZABLE
+Stator.setEvaluator(ngEvaluator); /// STATOR CUSTOMIZED
+//Stator.setEvaluator(normalEvaluator); /// STATOR CUSTOMIZED
 
 /**
  * _______________________________________________________
@@ -39,7 +39,7 @@ Stator.setEvaluator(normalEvaluator); /// STATOR CUSTOMIZABLE
  */
 import { reactive, effect, stop, toRaw } from '@vue/reactivity';
 
-Stator.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw }); /// STATOR CUSTOMIZABLE
+Stator.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw }); /// STATOR CUSTOMIZED
 
 /**
  * _______________________________________________________

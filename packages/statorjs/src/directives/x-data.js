@@ -6,7 +6,7 @@ import { interceptClone, isCloning, isCloningLegacy } from '../clone';
 import { addScopeToNode } from '../scope';
 import { injectMagics, magic } from '../magics';
 import { reactive } from '../reactivity';
-import { evaluate } from '../evaluator'; /// STATOR CUSTOMIZABLE
+import { evaluate } from '../evaluator'; /// STATOR CUSTOMIZED
 
 addRootSelector(() => `[${prefix('data')}]`);
 
@@ -21,11 +21,7 @@ directive('data', (el, { expression }, { cleanup }) => {
   let dataProviderContext = {};
   injectDataProviders(dataProviderContext, magicContext);
 
-  console.log(el);
-  console.log(expression);
-
   let data = evaluate(el, expression, { scope: dataProviderContext });
-  console.log(data);
 
   if (data === undefined || data === true) data = {};
 
@@ -35,9 +31,7 @@ directive('data', (el, { expression }, { cleanup }) => {
 
   initInterceptors(reactiveData);
 
-  console.log('********************************');
   let undo = addScopeToNode(el, reactiveData);
-  console.log(el);
 
   reactiveData['init'] && evaluate(el, reactiveData['init']);
 
