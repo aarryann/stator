@@ -1,7 +1,7 @@
-import { generateEvaluatorFromFunction, runIfTypeOfFunction } from './evaluatorNormal';
-import { closestDataStack, mergeProxies } from './scope';
-import { tryCatch } from './utils/error';
-import { injectMagics } from './magics';
+import { generateEvaluatorFromFunction, runIfTypeOfFunction } from '../packages/statorjs/src/evaluatorNormal';
+import { closestDataStack, mergeProxies } from '../packages/statorjs/src/scope';
+import { tryCatch } from '../packages/statorjs/src/utils/error';
+import { injectMagics } from '../packages/statorjs/src/magics';
 
 export function cspEvaluator(el, expression) {
   let dataStack = generateDataStack(el);

@@ -231,58 +231,82 @@ class Lexer {
 
   // Handle template literals enclosed in backticks
   readTemplateLiteral() {
-    let templateContent = '';
-    let ch;
+    this.index++; // Skip the initial backtick
+    this.tokens.push({ index: this.index - 1, text: '`', type: 'TEMPLATE_LITERAL_START' });
 
-    // Start reading content within the backticks
-    this.index++; // Skip the backtick
+    let templateContent = '';
+
     while (this.index < this.text.length) {
-      ch = this.text.charAt(this.index);
+      const ch = this.text.charAt(this.index);
 
       if (ch === '`') {
-        // End of template literal
-        this.tokens.push({ index: this.index, text: templateContent, type: 'TEMPLATE_LITERAL_CONTENT' });
+        this.pushTemplateContentToken(templateContent);
         this.tokens.push({ index: this.index, text: '`', type: 'TEMPLATE_LITERAL_END' });
         this.index++;
         return;
-      }
-
-      // Handle interpolation syntax inside template literal
-      if (ch === '$' && this.peek() === '{') {
-        this.index++; // Skip the '$'
-        this.tokens.push({ index: this.index - 1, text: '${', type: 'INTERPOLATION_START' });
-        this.index++; // Skip the '{'
-        this.readInterpolation();
+      } else if (ch === '$' && this.peek() === '{') {
+        this.pushTemplateContentToken(templateContent);
+        templateContent = '';
+        this.index++; // Skip the '$'  <-- Crucial: Skip ONLY the $ here
+        this.readInterpolation(); // Now read the interpolation (including the {)
+      } else if (ch === '\\') {
+        // Escape sequence handling
+        const nextCh = this.peek();
+        if (nextCh) {
+          const escapedCh = ESCAPE[nextCh] || nextCh; // Use ESCAPE map or the character itself
+          templateContent += escapedCh;
+          this.index += 2; // Skip both characters
+        } else {
+          this.throwError('Invalid escape sequence');
+          return; // Or handle the error as you see fit
+        }
       } else {
-        templateContent += ch; // Add character to content
+        templateContent += ch;
         this.index++;
       }
     }
 
-    this.throwError('Unclosed template literal', this.index);
+    this.throwError('Unclosed template literal');
   }
-
   // Add readInterpolation function to capture the interpolation content
   readInterpolation() {
-    let interpolationContent = '';
+    this.index++; // Skip '{'
+    this.tokens.push({ index: this.index - 1, text: '${', type: 'INTERPOLATION_START' });
+
     let ch;
-
-    while (this.index < this.text.length) {
-      ch = this.text.charAt(this.index);
-
-      if (ch === '}') {
-        // End of interpolation
-        this.tokens.push({ index: this.index, text: interpolationContent, type: 'INTERPOLATION_CONTENT' });
-        this.tokens.push({ index: this.index, text: '}', type: 'INTERPOLATION_END' });
+    while (this.index < this.text.length && (ch = this.text.charAt(this.index)) !== '}') {
+      if (this.isIdentifierStart(ch)) {
+        this.readIdent();
+      } else if (this.isWhitespace(ch)) {
         this.index++;
-        return;
+      } else if (ch === '\\') {
+        const nextCh = this.peek();
+        if (nextCh) {
+          const escapedCh = ESCAPE[nextCh] || nextCh;
+          this.pushInterpolationContentToken(escapedCh);
+          this.index += 2;
+        } else {
+          this.throwError('Invalid escape sequence');
+          return;
+        }
+      } else {
+        this.pushInterpolationContentToken(ch);
+        this.index++;
       }
-
-      interpolationContent += ch;
-      this.index++;
     }
 
-    this.throwError('Unclosed interpolation expression', this.index);
+    this.tokens.push({ index: this.index, text: '}', type: 'INTERPOLATION_END' });
+    this.index++; // Skip '}'
+  }
+
+  pushTemplateContentToken(templateContent) {
+    if (templateContent.length > 0) {
+      this.tokens.push({ index: this.index - templateContent.length, text: templateContent, type: 'TEMPLATE_LITERAL_CONTENT' });
+    }
+  }
+
+  pushInterpolationContentToken(interpolationContent) {
+    this.tokens.push({ index: this.index - interpolationContent.length, text: interpolationContent, type: 'INTERPOLATION_CONTENT' });
   }
 
   readNumber() {
@@ -315,10 +339,12 @@ class Lexer {
   }
 
   readIdent() {
+    // No changes needed here (it was already correct)
     const start = this.index;
-    this.index += this.peekMultichar().length;
+    let ch = this.peekMultichar();
+    this.index += ch.length;
     while (this.index < this.text.length) {
-      const ch = this.peekMultichar();
+      ch = this.peekMultichar();
       if (!this.isIdentifierContinue(ch)) {
         break;
       }
@@ -576,31 +602,36 @@ class AST {
    * **🔹 New Method: Parses Template Literals with Interpolation**
    */
   templateLiteral() {
-    let elements = [];
+    const quasis = [];
+    const expressions = [];
 
-    this.consume('`'); // **Consume opening backtick**
+    this.consume('`'); // Consume TEMPLATE_LITERAL_START
+
+    let currentQuasi = ''; // Accumulate the current quasi
 
     while (this.tokens.length > 0) {
-      let token = this.tokens[0];
+      const token = this.tokens[0];
 
       if (token.type === 'TEMPLATE_LITERAL_CONTENT') {
-        elements.push({ type: AST.Literal, value: token.text });
-        this.tokens.shift();
+        currentQuasi += token.text;
+        this.consume();
       } else if (token.type === 'INTERPOLATION_START') {
-        this.consume('${'); // **Consume `${`**
-        elements.push(this.expression()); // **Parse expression inside interpolation**
-        this.consume('}'); // **Ensure `}` is present**
-      } else if (token.text === '`') {
-        this.consume('`'); // **Consume closing backtick**
-        return { type: AST.TemplateLiteral, elements: elements };
+        quasis.push({ type: 'TemplateElement', value: { raw: currentQuasi, cooked: currentQuasi }, tail: false }); // Quasi before interpolation
+        currentQuasi = ''; // Reset for next quasi
+        this.consume(); // Consume INTERPOLATION_START `${`
+        expressions.push(this.filterChain()); // Parse the expression INSIDE the interpolation
+        this.consume('}'); // Consume INTERPOLATION_END `}`
+      } else if (token.type === 'TEMPLATE_LITERAL_END') {
+        quasis.push({ type: 'TemplateElement', value: { raw: currentQuasi, cooked: currentQuasi }, tail: true }); // Final quasi (can be empty)
+        this.consume(); // Consume TEMPLATE_LITERAL_END
+        break;
       } else {
         this.throwError('Unexpected token in template literal', token);
       }
     }
 
-    this.throwError('Unclosed template literal');
+    return { type: AST.TemplateLiteral, quasis, expressions };
   }
-
   filter(baseExpression) {
     const args = [baseExpression];
     const result = { type: AST.CallExpression, callee: this.identifier(), arguments: args, filter: true };
@@ -886,13 +917,21 @@ class ASTInterpreter {
           return context ? { value: assign } : assign;
         };
       case AST.TemplateLiteral:
-        const elements = ast.elements.map(element => this.recurse(element, context));
-
         return function (scope, locals, assign, inputs) {
+          const quasis = ast.quasis.map(quasi => quasi.value.cooked);
+          const expressions = ast.expressions.map(expr => self.recurse(expr, context)(scope, locals, assign, inputs));
+
           let result = '';
-          elements.forEach(element => {
-            result += element(scope, locals, assign, inputs); // Concatenate evaluated string parts
-          });
+          let expressionIndex = 0; // Keep track of the expression index
+
+          for (let i = 0; i < quasis.length; i++) {
+            result += quasis[i];
+            if (expressionIndex < expressions.length) {
+              // Check if there are more expressions
+              result += expressions[expressionIndex];
+              expressionIndex++;
+            }
+          }
           return context ? { value: result } : result;
         };
     }
@@ -1121,7 +1160,6 @@ function parse(expression) {
   const astCompiler = new ASTInterpreter();
   const ast = astCreator.ast(expression);
   const compiledFn = astCompiler.compile(ast);
-
   return function (scope = {}, locals = {}) {
     return compiledFn(scope, locals); // Pass the scope and locals to the compiled function
   };

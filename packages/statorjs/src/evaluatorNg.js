@@ -1,10 +1,9 @@
 import { generateEvaluatorFromFunction, runIfTypeOfFunction } from './evaluatorNormal';
-import { parse } from './utils/ngparser';
+import { parse } from './utils/evalparser';
 import { closestDataStack, mergeProxies } from './scope';
 import { tryCatch } from './utils/error';
 import { toJson } from './utils/toJson';
 import { injectMagics } from './magics';
-import { utilFnParser } from './utils/utilFunctions';
 
 export function ngEvaluator(el, expression) {
   let dataStack = generateDataStack(el);
@@ -28,7 +27,6 @@ function generateDataStack(el) {
 }
 
 function generateEvaluator(el, expression, dataStack) {
-  //const utilFunctionsParser = utilFnParser();
   return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
     let completeScope = mergeProxies([scope, ...dataStack]);
     //let flattenedScope = Object.assign({}, scope, ...[...dataStack].reverse());
@@ -40,11 +38,7 @@ function generateEvaluator(el, expression, dataStack) {
       if (exprStr.startsWith('{')) {
         evaluatedExpression = toJson(exprStr, completeScope);
       } else {
-        console.log(expression);
-        console.log(completeScope);
         evaluatedExpression = getParsed(expression)(completeScope);
-        //const expr = utilFunctionsParser.parse(evaluatedExpression);
-        //evaluatedExpression = expr.evaluate(flattenedScope);
       }
     } catch (e) {
       throwExpressionError(el, expression, e);

@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import Stator from '../../packages/statorjs/src/index';
-//import 'jsdom-global/register';
-//import 'jsdom-worker';
 import { render, fireEvent, screen } from '@testing-library/vue';
 import { vitest } from 'vitest';
 
@@ -33,6 +31,7 @@ beforeEach(() => {
 
 describe('Stator.js Directives Tests', () => {
   /// TODO: Test stator:init, initializing and initialized from lifecycle.js
+
   it('x-data nesting test', () => {
     mountHTML(`
     <div x-data='{ "foo": "bar", "count":1 }'>
@@ -66,6 +65,15 @@ describe('Stator.js Directives Tests', () => {
     expect(element.style.color).toBe('red');
   });
 
+  it('test ngparser interpolation', () => {
+    mountHTML(
+      `<div x-data='{ "name": "Jack Ryan", "age": 23 }'>
+         <p x-text="\`Hello, \${name}! You are \${age} years old.\`"></p>
+       </div>`
+    );
+    const element = document.querySelector('p');
+    expect(element.textContent).toBe('Hello, Jack Ryan! You are 23 years old.');
+  });
   /*
   it('x-on handles events', async () => {
     mountHTML(
@@ -294,7 +302,6 @@ describe('Stator.js Directives Tests', () => {
 
     await fireEvent.click(button);
     await new Promise(r => setTimeout(r, 100));
-    console.log(span.outerHTML);
     expect(span.textContent).toBe('5');
   });
   */

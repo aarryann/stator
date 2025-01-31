@@ -1,8 +1,8 @@
-import { generateEvaluatorFromFunction, runIfTypeOfFunction } from './evaluatorNormal';
-import { closestDataStack, mergeProxies } from './scope';
-import { tryCatch } from './utils/error';
-import { toJson } from './utils/toJson';
-import { injectMagics } from './magics';
+import { generateEvaluatorFromFunction, runIfTypeOfFunction } from '../packages/statorjs/src/evaluatorNormal';
+import { closestDataStack, mergeProxies } from '../packages/statorjs/src/scope';
+import { tryCatch } from '../packages/statorjs/src/utils/error';
+import { toJson } from '../packages/statorjs/src/utils/toJson';
+import { injectMagics } from '../packages/statorjs/src/magics';
 import { Parser } from 'expr-eval'; // Import expr-eval
 
 let exprParser;
