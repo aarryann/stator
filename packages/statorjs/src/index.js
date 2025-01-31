@@ -25,8 +25,8 @@ import Stator from './main'; /// STATOR CUSTOMIZABLE
  */
 import { normalEvaluator, ngEvaluator } from './evaluator'; /// STATOR CUSTOMIZED
 
-Stator.setEvaluator(ngEvaluator); /// STATOR CUSTOMIZED
-//Stator.setEvaluator(normalEvaluator); /// STATOR CUSTOMIZED
+//Stator.setEvaluator(ngEvaluator); /// STATOR CUSTOMIZED
+Stator.setEvaluator(normalEvaluator); /// STATOR CUSTOMIZED
 
 /**
  * _______________________________________________________

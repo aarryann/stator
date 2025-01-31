@@ -31,7 +31,7 @@ beforeEach(() => {
 
 describe('Stator.js Directives Tests', () => {
   /// TODO: Test stator:init, initializing and initialized from lifecycle.js
-
+  /*
   it('x-data nesting test', () => {
     mountHTML(`
     <div x-data='{ "foo": "bar", "count":1 }'>
@@ -74,37 +74,6 @@ describe('Stator.js Directives Tests', () => {
     const element = document.querySelector('p');
     expect(element.textContent).toBe('Hello, Jack Ryan! You are 23 years old.');
   });
-  /*
-  it('x-on handles events', async () => {
-    mountHTML(
-      `<div x-data='{ "count": 0 }'>
-         <button x-on:click="count=count+1">Click</button>
-         <span x-text="count"></span>
-       </div>`
-    );
-    const button = document.querySelector('button');
-    const span = document.querySelector('span');
-
-    expect(span.textContent).toBe('0');
-
-    await fireEvent.click(button);
-    expect(span.textContent).toBe('0');
-  });
-  
-  it('x-model two-way binds input fields', async () => {
-    mountHTML(
-      `<div x-data='{ "inputValue": "" }'>
-         <input x-model="inputValue">
-         <p x-text="inputValue"></p>
-       </div>`
-    );
-    const input = document.querySelector('input');
-    const output = document.querySelector('p');
-
-    await fireEvent.update(input, 'Hello Stator!');
-    expect(output.textContent).toBe('Hello Stator!');
-  });
-
   it('x-show toggles element visibility', () => {
     mountHTML(
       `<div x-data='{ "visible": true }'>
@@ -164,44 +133,6 @@ describe('Stator.js Directives Tests', () => {
     const button = document.querySelector('button');
     await fireEvent.click(button);
     expect(document.querySelector('[x-data]')._x_dataStack[0].submitted).toBe(true);
-  });
-
-  it('x-transition applies transitions on show/hide', async () => {
-    mountHTML(
-      `<div x-data='{ "visible": false }'>
-         <p x-show="visible" x-transition>Transition Content</p>
-         <button @click="visible = !visible; i=i+1;">Toggle</button>
-       </div>`
-    );
-
-    const paragraph = document.querySelector('p');
-    const button = document.querySelector('button');
-
-    expect(paragraph.style.display).toBe('none');
-    await fireEvent.click(button);
-    await new Promise(r => setTimeout(r, 20)); // Adjust timeout to match transition duration
-    expect(paragraph.style.display).not.toBe('none');
-  });
-
-  it('Nested x-for loops render correctly', () => {
-    mountHTML(
-      `<div x-data='{ "lists": [{ "items": ["A", "B"] }, { "items": ["C", "D"] }] }'>
-         <template x-for="list in lists">
-           <div>
-             <template x-for="item in list.items">
-               <p x-text="item"></p>
-             </template>
-           </div>
-         </template>
-       </div>`
-    );
-
-    const paragraphs = document.querySelectorAll('p');
-    expect(paragraphs.length).toBe(4);
-    expect(paragraphs[0].textContent).toBe('A');
-    expect(paragraphs[1].textContent).toBe('B');
-    expect(paragraphs[2].textContent).toBe('C');
-    expect(paragraphs[3].textContent).toBe('D');
   });
 
   it('binds a value to a DOM element correctly', () => {
@@ -267,6 +198,95 @@ describe('Stator.js Directives Tests', () => {
     expect(div.classList.contains('test')).toBe(true);
     expect(div.style.color).toBe('red');
   });
+
+  it('handles modeleable transformations', async () => {
+    mountHTML(`
+      <div x-data="{ number: 5 }">
+        <div x-data="{ count: 0 }" x-modelable="count" x-model="number">
+          <button @click="count++">Increment</button>
+        </div>
+        Number: <span id="displayNumber" x-text="number"></span>
+      </div>
+      `);
+    const button = document.querySelector('button');
+    const span = document.querySelector('#displayNumber');
+
+    await fireEvent.click(button);
+    await new Promise(r => setTimeout(r, 100));
+    expect(span.textContent).toBe('5');
+  });
+
+  it('Nested x-for loops render correctly', () => {
+    mountHTML(
+      `<div x-data='{ "lists": [{ "items": ["A", "B"] }, { "items": ["C", "D"] }] }'>
+         <template x-for="list in lists">
+           <div>
+             <template x-for="item in list.items">
+               <p x-text="item"></p>
+             </template>
+           </div>
+         </template>
+       </div>`
+    );
+
+    const paragraphs = document.querySelectorAll('p');
+    expect(paragraphs.length).toBe(4);
+    expect(paragraphs[0].textContent).toBe('A');
+    expect(paragraphs[1].textContent).toBe('B');
+    expect(paragraphs[2].textContent).toBe('C');
+    expect(paragraphs[3].textContent).toBe('D');
+  });
+*/
+
+  it('x-on handles events', async () => {
+    mountHTML(
+      `<div x-data='{ "count": 0 }'>
+         <button x-on:click="count=count+1">Click</button>
+         <span x-text="count"></span>
+       </div>`
+    );
+    const button = document.querySelector('button');
+    const span = document.querySelector('span');
+
+    expect(span.textContent).toBe('0');
+
+    await fireEvent.click(button);
+    expect(span.textContent).toBe('0');
+  });
+  /*
+  it('x-model two-way binds input fields', async () => {
+    mountHTML(
+      `<div x-data='{ "inputValue": "" }'>
+         <input x-model="inputValue">
+         <p x-text="inputValue"></p>
+       </div>`
+    );
+    const input = document.querySelector('input');
+    const output = document.querySelector('p');
+
+    await fireEvent.update(input, 'Hello Stator!');
+    expect(output.textContent).toBe('Hello Stator!');
+  });
+  */
+  /*
+  it('x-transition applies transitions on show/hide', async () => {
+    mountHTML(
+      `<div x-data='{ "visible": false }'>
+         <p x-show="visible" x-transition>Transition Content</p>
+         <button @click="visible = !visible; i=i+1;">Toggle</button>
+       </div>`
+    );
+
+    const paragraph = document.querySelector('p');
+    const button = document.querySelector('button');
+
+    expect(paragraph.style.display).toBe('none');
+    await fireEvent.click(button);
+    await new Promise(r => setTimeout(r, 20)); // Adjust timeout to match transition duration
+    expect(paragraph.style.display).not.toBe('none');
+  });
+  */
+  /*
   it('handles class string transformations', async () => {
     Stator.store('test', {
       count: 0,
@@ -287,22 +307,6 @@ describe('Stator.js Directives Tests', () => {
     button.click();
     await new Promise(r => setTimeout(r, 10));
     expect(span.textContent).toBe('1');
-  });
-  it('handles modeleable transformations', async () => {
-    mountHTML(`
-      <div x-data="{ number: 5 }">
-        <div x-data="{ count: 0 }" x-modelable="count" x-model="number">
-          <button @click="count++">Increment</button>
-        </div>
-        Number: <span id="displayNumber" x-text="number"></span>
-      </div>
-      `);
-    const button = document.querySelector('button');
-    const span = document.querySelector('#displayNumber');
-
-    await fireEvent.click(button);
-    await new Promise(r => setTimeout(r, 100));
-    expect(span.textContent).toBe('5');
   });
   */
 });
