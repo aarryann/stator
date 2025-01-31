@@ -123,17 +123,32 @@ class Lexer {
     while (this.index < this.text.length) {
       const ch = this.text.charAt(this.index);
       if (ch === '"' || ch === "'") {
+        // Handle string literals
         this.readString(ch);
+      } else if (ch === '`') {
+        // Handle template literals (backticks)
+        this.readTemplateLiteral();
       } else if (this.isNumber(ch) || (ch === '.' && this.isNumber(this.peek()))) {
+        // Handle numbers (integer or float)
         this.readNumber();
       } else if (this.isIdentifierStart(this.peekMultichar())) {
+        // Handle identifiers
         this.readIdent();
       } else if (this.is(ch, '(){}[].,;:?')) {
+        // Handle punctuation and symbols
         this.tokens.push({ index: this.index, text: ch });
         this.index++;
+      } else if (ch === '$' && this.peek() === '{') {
+        // Handle interpolation `${...}` syntax
+        this.index++; // Skip the '$'
+        this.tokens.push({ index: this.index - 1, text: '${', type: 'INTERPOLATION_START' });
+        this.index++; // Skip the '{'
+        this.readInterpolation();
       } else if (this.isWhitespace(ch)) {
+        // Handle whitespaces
         this.index++;
       } else {
+        // Unexpected character
         const ch2 = ch + this.peek();
         const ch3 = ch2 + this.peek(2);
         const op1 = OPERATORS[ch];
@@ -212,6 +227,62 @@ class Lexer {
     end = end || this.index;
     const colStr = isDefined(start) ? 's ' + start + '-' + this.index + ' [' + this.text.substring(start, end) + ']' : ' ' + end;
     throw throwParseError('lexerr', 'Lexer Error: {0} at column{1} in expression [{2}].', error, colStr, this.text);
+  }
+
+  // Handle template literals enclosed in backticks
+  readTemplateLiteral() {
+    let templateContent = '';
+    let ch;
+
+    // Start reading content within the backticks
+    this.index++; // Skip the backtick
+    while (this.index < this.text.length) {
+      ch = this.text.charAt(this.index);
+
+      if (ch === '`') {
+        // End of template literal
+        this.tokens.push({ index: this.index, text: templateContent, type: 'TEMPLATE_LITERAL_CONTENT' });
+        this.tokens.push({ index: this.index, text: '`', type: 'TEMPLATE_LITERAL_END' });
+        this.index++;
+        return;
+      }
+
+      // Handle interpolation syntax inside template literal
+      if (ch === '$' && this.peek() === '{') {
+        this.index++; // Skip the '$'
+        this.tokens.push({ index: this.index - 1, text: '${', type: 'INTERPOLATION_START' });
+        this.index++; // Skip the '{'
+        this.readInterpolation();
+      } else {
+        templateContent += ch; // Add character to content
+        this.index++;
+      }
+    }
+
+    this.throwError('Unclosed template literal', this.index);
+  }
+
+  // Add readInterpolation function to capture the interpolation content
+  readInterpolation() {
+    let interpolationContent = '';
+    let ch;
+
+    while (this.index < this.text.length) {
+      ch = this.text.charAt(this.index);
+
+      if (ch === '}') {
+        // End of interpolation
+        this.tokens.push({ index: this.index, text: interpolationContent, type: 'INTERPOLATION_CONTENT' });
+        this.tokens.push({ index: this.index, text: '}', type: 'INTERPOLATION_END' });
+        this.index++;
+        return;
+      }
+
+      interpolationContent += ch;
+      this.index++;
+    }
+
+    this.throwError('Unclosed interpolation expression', this.index);
   }
 
   readNumber() {
@@ -469,6 +540,9 @@ class AST {
       primary = this.arrayDeclaration();
     } else if (this.expect('{')) {
       primary = this.object();
+    } else if (this.peek().text === '`') {
+      // **🔹 Detect template literals**
+      primary = this.templateLiteral();
     } else if (this.selfReferential.hasOwnProperty(this.peek().text)) {
       primary = copy(this.selfReferential[this.consume().text]);
     } else if (this.options.literals.hasOwnProperty(this.peek().text)) {
@@ -496,6 +570,35 @@ class AST {
       }
     }
     return primary;
+  }
+
+  /**
+   * **🔹 New Method: Parses Template Literals with Interpolation**
+   */
+  templateLiteral() {
+    let elements = [];
+
+    this.consume('`'); // **Consume opening backtick**
+
+    while (this.tokens.length > 0) {
+      let token = this.tokens[0];
+
+      if (token.type === 'TEMPLATE_LITERAL_CONTENT') {
+        elements.push({ type: AST.Literal, value: token.text });
+        this.tokens.shift();
+      } else if (token.type === 'INTERPOLATION_START') {
+        this.consume('${'); // **Consume `${`**
+        elements.push(this.expression()); // **Parse expression inside interpolation**
+        this.consume('}'); // **Ensure `}` is present**
+      } else if (token.text === '`') {
+        this.consume('`'); // **Consume closing backtick**
+        return { type: AST.TemplateLiteral, elements: elements };
+      } else {
+        this.throwError('Unexpected token in template literal', token);
+      }
+    }
+
+    this.throwError('Unclosed template literal');
   }
 
   filter(baseExpression) {
@@ -781,6 +884,16 @@ class ASTInterpreter {
       case AST.NGValueParameter:
         return function (scope, locals, assign) {
           return context ? { value: assign } : assign;
+        };
+      case AST.TemplateLiteral:
+        const elements = ast.elements.map(element => this.recurse(element, context));
+
+        return function (scope, locals, assign, inputs) {
+          let result = '';
+          elements.forEach(element => {
+            result += element(scope, locals, assign, inputs); // Concatenate evaluated string parts
+          });
+          return context ? { value: result } : result;
         };
     }
   }

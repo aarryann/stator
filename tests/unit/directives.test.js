@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import Stator from '../../packages/statorjs/src/index';
 //import 'jsdom-global/register';
-import 'jsdom-worker';
+//import 'jsdom-worker';
 import { render, fireEvent, screen } from '@testing-library/vue';
 import { vitest } from 'vitest';
 
@@ -18,32 +18,21 @@ vi.mock('../../packages/statorjs/src/mutation', async () => {
 */
 function mountHTML(html, data = {}) {
   document.body.innerHTML = html;
-  //Stator.initTree(document.body.firstChild, undefined, undefined);
   Stator.restart();
 }
 
 beforeAll(() => {
-  // Setup before each describe
   document.body.innerHTML = '<div></div>';
   Stator.start();
 });
 
 beforeEach(() => {
-  // Clean up DOM before each test
   Stator.destroyTree(document.body);
   document.body.innerHTML = '';
 });
 
 describe('Stator.js Directives Tests', () => {
   /// TODO: Test stator:init, initializing and initialized from lifecycle.js
-  /*
-  it('x-data worker test', () => {
-    let code = `onmessage = e => {console.log('******'); return postMessage(e.data*2)}`;
-    let worker = new Worker(URL.createObjectURL(new Blob([code])));
-    worker.onmessage = console.log;
-    worker.postMessage(10); // 10
-  });
-  */
   it('x-data nesting test', () => {
     mountHTML(`
     <div x-data='{ "foo": "bar", "count":1 }'>
@@ -61,7 +50,6 @@ describe('Stator.js Directives Tests', () => {
     expect(bazSpan.textContent).toBe('goo');
   });
 
-  /*
   it('x-data initializes correctly and binds data to the DOM', () => {
     mountHTML(`<div x-data='{ "foo": "bar" }'><span x-text="foo"></span></div>`);
     const span = document.querySelector('span');
@@ -71,13 +59,14 @@ describe('Stator.js Directives Tests', () => {
   it('x-bind dynamically binds attributes', () => {
     mountHTML(
       `<div x-data='{ "color": "red" }'>
-         <p x-bind:style="concat('color: ', color)">Test</p>
+         <p x-bind:style="\`color: \${color}\`">Test</p>
        </div>`
     );
     const element = document.querySelector('p');
     expect(element.style.color).toBe('red');
   });
 
+  /*
   it('x-on handles events', async () => {
     mountHTML(
       `<div x-data='{ "count": 0 }'>
