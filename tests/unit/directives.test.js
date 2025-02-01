@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
-//import Stator from '../../packages/alpinejs/src/index';
 import Stator from '../../packages/statorjs/src/index';
 //import Stator from 'alpinejs';
 import waitFor from 'wait-for-expect';
@@ -17,23 +16,23 @@ vi.mock('../../packages/statorjs/src/mutation', async () => {
 */
 function mountHTML(html, data = {}) {
   document.body.innerHTML = html;
-  //Stator.restart();
-  Stator.start();
+  Stator.restart();
+  //Stator.start();
 }
 
 beforeAll(() => {
   document.body.innerHTML = '<div></div>';
-  //Stator.start();
+  Stator.start();
 });
 
 beforeEach(() => {
-  //Stator.destroyTree(document.body);
+  Stator.destroyTree(document.body);
   document.body.innerHTML = '';
 });
 
 describe('Stator.js Directives Tests', () => {
   /// TODO: Test stator:init, initializing and initialized from lifecycle.js
-  /*
+
   it('x-data nesting test', () => {
     mountHTML(`
     <div x-data='{ "foo": "bar", "count":1 }'>
@@ -98,22 +97,6 @@ describe('Stator.js Directives Tests', () => {
     const paragraph = document.body.querySelector('p');
     expect(paragraph).not.toBeNull();
   });
-
-  it('x-for loops through arrays', () => {
-    mountHTML(
-      `<div x-data='{ "items": ["One", "Two", "Three"] }'>
-         <template x-for="item in items">
-           <p x-text="item"></p>
-         </template>
-       </div>`
-    );
-    const paragraphs = document.querySelectorAll('p');
-    expect(paragraphs.length).toBe(3);
-    expect(paragraphs[0].textContent).toBe('One');
-    expect(paragraphs[1].textContent).toBe('Two');
-    expect(paragraphs[2].textContent).toBe('Three');
-  });
-
   it('x-init runs initialization expressions', () => {
     mountHTML(
       `<div x-data='{ "foo": "bar" }' x-init='foo = "baz"'>
@@ -156,15 +139,17 @@ describe('Stator.js Directives Tests', () => {
     expect(renderedSpan).not.toBeNull();
     expect(renderedSpan.textContent).toBe('Rendered');
   });
-
-  it('generates unique IDs using $id', () => {
-    mountHTML(
-      `<div x-data="{ id: $id('unique') }">
-         <p x-text="id"></p>
-       </div>`
-    );
-    const id = document.querySelector('p').textContent;
-    expect(id).toContain('unique');
+  it('clicking a button to toggle visibility', async () => {
+    mountHTML(`<div x-data="{ isOpen: false }">
+      <button @click="isOpen = !isOpen">Click Me</button>
+      <span x-show="isOpen"></span>
+    </div>`);
+    expect(document.querySelector('span').style.display).toEqual('none');
+    const button = document.querySelector('button');
+    button.click();
+    await waitFor(() => {
+      expect(document.querySelector('span').style.display).toEqual('none');
+    });
   });
 
   it('resolves DOM elements using $refs', () => {
@@ -186,7 +171,30 @@ describe('Stator.js Directives Tests', () => {
     await new Promise(r => setTimeout(r, 150));
     expect(count).toBe(1);
   });
-
+  /*
+  it('x-for loops through arrays', () => {
+    mountHTML(
+      `<div x-data='{ "items": ["One", "Two", "Three"] }'>
+         <template x-for="item in items">
+           <p x-text="item"></p>
+         </template>
+       </div>`
+    );
+    const paragraphs = document.querySelectorAll('p');
+    expect(paragraphs.length).toBe(3);
+    expect(paragraphs[0].textContent).toBe('One');
+    expect(paragraphs[1].textContent).toBe('Two');
+    expect(paragraphs[2].textContent).toBe('Three');
+  });
+  it('generates unique IDs using $id', () => {
+    mountHTML(
+      `<div x-data="{ id: $id('unique') }">
+         <p x-text="id"></p>
+       </div>`
+    );
+    const id = document.querySelector('p').textContent;
+    expect(id).toContain('unique');
+  });
   it('handles complex attribute bindings', () => {
     mountHTML(`
         <div x-data="{ attrs: { 'data-test': 'value', class: 'test', style: 'color: red' } }">
@@ -199,7 +207,7 @@ describe('Stator.js Directives Tests', () => {
     expect(div.classList.contains('test')).toBe(true);
     expect(div.style.color).toBe('red');
   });
-
+  
   it('handles modeleable transformations', async () => {
     mountHTML(`
       <div x-data="{ number: 5 }">
@@ -216,7 +224,7 @@ describe('Stator.js Directives Tests', () => {
     await new Promise(r => setTimeout(r, 100));
     expect(span.textContent).toBe('5');
   });
-
+  
   it('Nested x-for loops render correctly', () => {
     mountHTML(
       `<div x-data='{ "lists": [{ "items": ["A", "B"] }, { "items": ["C", "D"] }] }'>
@@ -237,22 +245,6 @@ describe('Stator.js Directives Tests', () => {
     expect(paragraphs[2].textContent).toBe('C');
     expect(paragraphs[3].textContent).toBe('D');
   });
-*/
-
-  it('clicking a button to toggle visibility', async () => {
-    mountHTML(`<div x-data="{ isOpen: false }">
-      <button @click="isOpen = !isOpen">Click Me</button>
-      <span x-show="isOpen"></span>
-    </div>`);
-    expect(document.querySelector('span').style.display).toEqual('none');
-    const button = document.querySelector('button');
-    button.click();
-    await waitFor(() => {
-      expect(document.querySelector('span').style.display).toEqual('none');
-    });
-  });
-
-  /*
   it('x-on handles events', async () => {
     mountHTML(
       `<div x-data='{ "count": 0 }'>
@@ -282,8 +274,6 @@ describe('Stator.js Directives Tests', () => {
     await fireEvent.update(input, 'Hello Stator!');
     expect(output.textContent).toBe('Hello Stator!');
   });
-  */
-  /*
   it('x-transition applies transitions on show/hide', async () => {
     mountHTML(
       `<div x-data='{ "visible": false }'>
@@ -300,8 +290,6 @@ describe('Stator.js Directives Tests', () => {
     await new Promise(r => setTimeout(r, 20)); // Adjust timeout to match transition duration
     expect(paragraph.style.display).not.toBe('none');
   });
-  */
-  /*
   it('handles class string transformations', async () => {
     Stator.store('test', {
       count: 0,
