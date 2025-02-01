@@ -28,6 +28,9 @@ function generateDataStack(el) {
 
 function generateEvaluator(el, expression, dataStack) {
   return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
+    console.log(expression);
+    console.log(dataStack);
+    console.log(scope);
     let completeScope = mergeProxies([scope, ...dataStack]);
     //let flattenedScope = Object.assign({}, scope, ...[...dataStack].reverse());
 

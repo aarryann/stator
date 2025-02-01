@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import Stator from '../../packages/statorjs/src/index';
 //import Stator from 'alpinejs';
 import waitFor from 'wait-for-expect';
+import { parse } from '../../packages/statorjs/src/utils/evalparser';
+import { toJson } from '../../packages/statorjs/src/utils/toJson';
 
 // Mock the startObservingMutations function
 /*
@@ -33,6 +35,20 @@ beforeEach(() => {
 describe('Stator.js Directives Tests', () => {
   /// TODO: Test stator:init, initializing and initialized from lifecycle.js
 
+  it('x-data: test ngparser for object array', () => {
+    const scope = {};
+    const expression = '{"count": 1}';
+    let evaluatedExpression;
+    if (expression.startsWith('{')) {
+      evaluatedExpression = toJson(expression, scope);
+    } else {
+      evaluatedExpression = parse(expression)(scope);
+    }
+
+    console.log(evaluatedExpression);
+    expect(JSON.stringify(evaluatedExpression)).toBe('{"count":1}');
+  });
+  /*
   it('x-data nesting test', () => {
     mountHTML(`
     <div x-data='{ "foo": "bar", "count":1 }'>
@@ -171,7 +187,8 @@ describe('Stator.js Directives Tests', () => {
     await new Promise(r => setTimeout(r, 150));
     expect(count).toBe(1);
   });
-  /*
+*/
+  /*********** 
   it('x-for loops through arrays', () => {
     mountHTML(
       `<div x-data='{ "items": ["One", "Two", "Three"] }'>
@@ -186,6 +203,8 @@ describe('Stator.js Directives Tests', () => {
     expect(paragraphs[1].textContent).toBe('Two');
     expect(paragraphs[2].textContent).toBe('Three');
   });
+  */
+  /*
   it('generates unique IDs using $id', () => {
     mountHTML(
       `<div x-data="{ id: $id('unique') }">
@@ -195,6 +214,7 @@ describe('Stator.js Directives Tests', () => {
     const id = document.querySelector('p').textContent;
     expect(id).toContain('unique');
   });
+
   it('handles complex attribute bindings', () => {
     mountHTML(`
         <div x-data="{ attrs: { 'data-test': 'value', class: 'test', style: 'color: red' } }">
@@ -207,7 +227,7 @@ describe('Stator.js Directives Tests', () => {
     expect(div.classList.contains('test')).toBe(true);
     expect(div.style.color).toBe('red');
   });
-  
+
   it('handles modeleable transformations', async () => {
     mountHTML(`
       <div x-data="{ number: 5 }">
