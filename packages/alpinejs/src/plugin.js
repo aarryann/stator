@@ -1,7 +1,7 @@
-import Stator from './main'; /// STATOR CUSTOMIZED
+import Alpine from "./alpine";
 
 export function plugin(callback) {
-  let callbacks = Array.isArray(callback) ? callback : [callback];
+    let callbacks = Array.isArray(callback) ? callback : [callback]
 
-  callbacks.forEach(i => i(Stator)); /// STATOR CUSTOMIZED
+    callbacks.forEach(i => i(Alpine))
 }

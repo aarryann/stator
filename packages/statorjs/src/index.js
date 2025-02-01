@@ -12,7 +12,7 @@
  * For starters, we'll import Stator's core. This is the
  * object that will expose all of Stator's public API.
  */
-import Stator from './main'; /// STATOR CUSTOMIZABLE
+import Stator from './main'; /// STATOR CUSTOMIZED
 
 /**
  * _______________________________________________________

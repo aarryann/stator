@@ -1,5 +1,5 @@
 import { addScopeToNode } from '../scope';
-import { evaluateLater } from '../evaluator'; /// STATOR CUSTOMIZABLE
+import { evaluateLater } from '../evaluator';
 import { directive } from '../directives';
 import { reactive } from '../reactivity';
 import { initTree, destroyTree } from '../lifecycle';

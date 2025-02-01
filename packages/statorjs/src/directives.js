@@ -1,5 +1,5 @@
 import { onAttributeRemoved, onElRemoved } from './mutation';
-import { evaluate, evaluateLater } from './evaluator'; /// STATOR CUSTOMIZABLE
+import { evaluate, evaluateLater } from './evaluator';
 import { elementBoundEffect } from './reactivity';
 import Stator from './main'; /// STATOR CUSTOMIZED
 

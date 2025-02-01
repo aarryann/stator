@@ -1,7 +1,7 @@
-import Stator from './../src/index';
+import Alpine from './../src/index'
 
-window.Stator = Stator;
+window.Alpine = Alpine
 
 queueMicrotask(() => {
-  Stator.start();
-});
+    Alpine.start()
+})

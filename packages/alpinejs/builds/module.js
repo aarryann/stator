@@ -1,5 +1,5 @@
-import Stator from './../src/index';
+import Alpine from './../src/index'
 
-export default Stator;
+export default Alpine
 
-export { Stator };
+export { Alpine }

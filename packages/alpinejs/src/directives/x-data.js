@@ -1,67 +1,67 @@
-import { directive, prefix } from '../directives';
-import { initInterceptors } from '../interceptor';
-import { injectDataProviders } from '../datas';
-import { addRootSelector } from '../lifecycle';
-import { interceptClone, isCloning, isCloningLegacy } from '../clone';
-import { addScopeToNode } from '../scope';
-import { injectMagics, magic } from '../magics';
-import { reactive } from '../reactivity';
-import { evaluate } from '../evaluator'; /// STATOR CUSTOMIZED
+import { directive, prefix } from '../directives'
+import { initInterceptors } from '../interceptor'
+import { injectDataProviders } from '../datas'
+import { addRootSelector } from '../lifecycle'
+import { interceptClone, isCloning, isCloningLegacy } from '../clone'
+import { addScopeToNode } from '../scope'
+import { injectMagics, magic } from '../magics'
+import { reactive } from '../reactivity'
+import { evaluate } from '../evaluator'
 
-addRootSelector(() => `[${prefix('data')}]`);
+addRootSelector(() => `[${prefix('data')}]`)
 
-directive('data', (el, { expression }, { cleanup }) => {
-  if (shouldSkipRegisteringDataDuringClone(el)) return;
+directive('data', ((el, { expression }, { cleanup }) => {
+    if (shouldSkipRegisteringDataDuringClone(el)) return
 
-  expression = expression === '' ? '{}' : expression;
+    expression = expression === '' ? '{}' : expression
 
-  let magicContext = {};
-  injectMagics(magicContext, el);
+    let magicContext = {}
+    injectMagics(magicContext, el)
 
-  let dataProviderContext = {};
-  injectDataProviders(dataProviderContext, magicContext);
+    let dataProviderContext = {}
+    injectDataProviders(dataProviderContext, magicContext)
 
-  let data = evaluate(el, expression, { scope: dataProviderContext });
+    let data = evaluate(el, expression, { scope: dataProviderContext })
 
-  if (data === undefined || data === true) data = {};
+    if (data === undefined || data === true) data = {}
 
-  injectMagics(data, el);
+    injectMagics(data, el)
 
-  let reactiveData = reactive(data);
+    let reactiveData = reactive(data)
 
-  initInterceptors(reactiveData);
+    initInterceptors(reactiveData)
 
-  let undo = addScopeToNode(el, reactiveData);
+    let undo = addScopeToNode(el, reactiveData)
 
-  reactiveData['init'] && evaluate(el, reactiveData['init']);
+    reactiveData['init'] && evaluate(el, reactiveData['init'])
 
-  cleanup(() => {
-    reactiveData['destroy'] && evaluate(el, reactiveData['destroy']);
+    cleanup(() => {
+        reactiveData['destroy'] && evaluate(el, reactiveData['destroy'])
 
-    undo();
-  });
-});
+        undo()
+    })
+}))
 
 interceptClone((from, to) => {
-  // Transfer over existing runtime Stator state from /// STATOR CUSTOMIZED
-  // the existing dom tree over to the new one...
-  if (from._x_dataStack) {
-    to._x_dataStack = from._x_dataStack;
+    // Transfer over existing runtime Alpine state from
+    // the existing dom tree over to the new one...
+    if (from._x_dataStack) {
+        to._x_dataStack = from._x_dataStack
 
-    // Set a flag to signify the new tree is using
-    // pre-seeded state (used so x-data knows when
-    // and when not to initialize state)...
-    to.setAttribute('data-has-stator-state', true); /// STATOR CUSTOMIZED
-  }
-});
+        // Set a flag to signify the new tree is using
+        // pre-seeded state (used so x-data knows when
+        // and when not to initialize state)...
+        to.setAttribute('data-has-alpine-state', true)
+    }
+})
 
 // If we are cloning a tree, we only want to evaluate x-data if another
 // x-data context DOESN'T exist on the component.
 // The reason a data context WOULD exist is that we graft root x-data state over
 // from the live tree before hydrating the clone tree.
 function shouldSkipRegisteringDataDuringClone(el) {
-  if (!isCloning) return false;
-  if (isCloningLegacy) return true;
+    if (! isCloning) return false
+    if (isCloningLegacy) return true
 
-  return el.hasAttribute('data-has-stator-state'); /// STATOR CUSTOMIZED
+    return el.hasAttribute('data-has-alpine-state')
 }

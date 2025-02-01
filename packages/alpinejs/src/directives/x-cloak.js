@@ -1,4 +1,4 @@
-import { directive, prefix } from '../directives';
-import { mutateDom } from '../mutation';
+import { directive, prefix } from '../directives'
+import { mutateDom } from '../mutation'
 
-directive('cloak', el => queueMicrotask(() => mutateDom(() => el.removeAttribute(prefix('cloak')))));
+directive('cloak', el => queueMicrotask(() => mutateDom(() => el.removeAttribute(prefix('cloak')))))

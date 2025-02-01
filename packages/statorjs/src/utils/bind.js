@@ -1,4 +1,4 @@
-import { dontAutoEvaluateFunctions, evaluate } from '../evaluator'; /// STATOR CUSTOMIZED
+import { dontAutoEvaluateFunctions, evaluate } from '../evaluator';
 import { reactive } from '../reactivity';
 import { setClasses } from './classes';
 import { setStyles } from './styles';
