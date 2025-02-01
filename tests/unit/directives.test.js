@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
-//import Stator, { nextTick } from '../../packages/statorjs/src/index';
-import Stator from 'alpinejs';
+import Stator from '../../packages/statorjs/src/index';
+//import Stator from 'alpinejs';
 import waitFor from 'wait-for-expect';
 
 // Mock the startObservingMutations function
