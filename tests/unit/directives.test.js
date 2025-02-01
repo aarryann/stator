@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
-import Stator from '../../packages/alpinejs/src/index';
+//import Stator from '../../packages/alpinejs/src/index';
+import Stator from '../../packages/statorjs/src/index';
 //import Stator from 'alpinejs';
 import waitFor from 'wait-for-expect';
 
