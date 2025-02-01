@@ -51,6 +51,8 @@ let observer = new MutationObserver(onMutate);
 let currentlyObserving = false;
 
 export function startObservingMutations() {
+  /// STATOR CUSTOMIZED
+  if (typeof document === 'undefined') return;
   observer.observe(document, { subtree: true, childList: true, attributes: true, attributeOldValue: true });
 
   currentlyObserving = true;

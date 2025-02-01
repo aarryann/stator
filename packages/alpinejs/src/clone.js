@@ -25,7 +25,7 @@ export function cloneNode(from, to) {
 
   // We don't need reactive effects in the new tree.
   // Cloning is just used to seed new server HTML with
-  // Stator before "morphing" it onto live Stator...
+  // Stator before "morphing" it onto live Stator... /// STATOR CUSTOMIZED
   dontRegisterReactiveSideEffects(() => {
     initTree(to, (el, callback) => {
       // We're hijacking the "walker" so that we

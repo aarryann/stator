@@ -6,15 +6,21 @@ import { warn } from './utils/warn';
 
 let started = false;
 
+/// STATOR CUSTOMIZED
+export function restart() {
+  started = false;
+  start();
+}
+
 export function start() {
-  if (started) warn('Stator has already been initialized on this page. Calling Stator.start() more than once can cause problems.');
+  if (started) warn('Stator has already been initialized on this page. Calling Stator.start() more than once can cause problems.'); /// STATOR CUSTOMIZED
 
   started = true;
 
   if (!document.body) warn("Unable to initialize. Trying to load Stator before `<body>` is available. Did you forget to add `defer` in Stator's `<script>` tag?");
 
-  dispatch(document, 'alpine:init');
-  dispatch(document, 'alpine:initializing');
+  dispatch(document, 'stator:init'); /// STATOR CUSTOMIZED
+  dispatch(document, 'stator:initializing'); /// STATOR CUSTOMIZED
 
   startObservingMutations();
 
@@ -32,7 +38,7 @@ export function start() {
       initTree(el);
     });
 
-  dispatch(document, 'alpine:initialized');
+  dispatch(document, 'stator:initialized'); /// STATOR CUSTOMIZED
 
   setTimeout(() => {
     warnAboutMissingPlugins();

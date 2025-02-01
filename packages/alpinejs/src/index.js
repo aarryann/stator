@@ -12,7 +12,7 @@
  * For starters, we'll import Stator's core. This is the
  * object that will expose all of Stator's public API.
  */
-import Stator from './alpine';
+import Stator from './main'; /// STATOR CUSTOMIZED
 
 /**
  * _______________________________________________________
@@ -23,9 +23,10 @@ import Stator from './alpine';
  * It's the function that converts raw JavaScript string
  * expressions like @click="toggle()", into actual JS.
  */
-import { normalEvaluator } from './evaluator';
+import { normalEvaluator, ngEvaluator } from './evaluator'; /// STATOR CUSTOMIZED
 
-Stator.setEvaluator(normalEvaluator);
+//Stator.setEvaluator(ngEvaluator); /// STATOR CUSTOMIZED
+Stator.setEvaluator(normalEvaluator); /// STATOR CUSTOMIZED
 
 /**
  * _______________________________________________________
@@ -38,7 +39,7 @@ Stator.setEvaluator(normalEvaluator);
  */
 import { reactive, effect, stop, toRaw } from '@vue/reactivity';
 
-Stator.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw });
+Stator.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw }); /// STATOR CUSTOMIZED
 
 /**
  * _______________________________________________________
@@ -71,4 +72,4 @@ import './directives/index';
  * Stator-related that will need to be accessed on-going
  * will be made available through the "Stator" global.
  */
-export default Stator;
+export default Stator; /// STATOR CUSTOMIZABLE
