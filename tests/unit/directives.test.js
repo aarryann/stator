@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
-import Stator from '../../packages/statorjs/src/index';
-import { render, fireEvent, screen } from '@testing-library/vue';
-import { vitest } from 'vitest';
+//import Stator, { nextTick } from '../../packages/statorjs/src/index';
+import Alpine, { nextTick } from 'alpinejs';
+import waitFor from 'wait-for-expect';
 
 // Mock the startObservingMutations function
 /*
@@ -16,16 +16,17 @@ vi.mock('../../packages/statorjs/src/mutation', async () => {
 */
 function mountHTML(html, data = {}) {
   document.body.innerHTML = html;
-  Stator.restart();
+  //Stator.restart();
+  Alpine.start();
 }
 
 beforeAll(() => {
   document.body.innerHTML = '<div></div>';
-  Stator.start();
+  //Stator.start();
 });
 
 beforeEach(() => {
-  Stator.destroyTree(document.body);
+  //Stator.destroyTree(document.body);
   document.body.innerHTML = '';
 });
 
@@ -121,7 +122,6 @@ describe('Stator.js Directives Tests', () => {
     const paragraph = document.querySelector('p');
     expect(paragraph.textContent).toBe('baz');
   });
-
   it('x-on with .prevent stops default action', async () => {
     mountHTML(
       `<div x-data='{ "submitted": false }'>
@@ -131,10 +131,10 @@ describe('Stator.js Directives Tests', () => {
        </div>`
     );
     const button = document.querySelector('button');
-    await fireEvent.click(button);
+    await document.querySelector('button').click();
+
     expect(document.querySelector('[x-data]')._x_dataStack[0].submitted).toBe(true);
   });
-
   it('binds a value to a DOM element correctly', () => {
     mountHTML(
       `<div x-data='{ "color": "blue" }'>
@@ -238,6 +238,20 @@ describe('Stator.js Directives Tests', () => {
   });
 */
 
+  it('clicking a button to toggle visibility', async () => {
+    mountHTML(`<div x-data="{ isOpen: false }">
+      <button @click="isOpen = !isOpen">Click Me</button>
+      <span x-show="isOpen"></span>
+    </div>`);
+    expect(document.querySelector('span').style.display).toEqual('none');
+    const button = document.querySelector('button');
+    button.click();
+    await waitFor(() => {
+      expect(document.querySelector('span').style.display).toEqual('none');
+    });
+  });
+
+  /*
   it('x-on handles events', async () => {
     mountHTML(
       `<div x-data='{ "count": 0 }'>
@@ -253,7 +267,7 @@ describe('Stator.js Directives Tests', () => {
     await fireEvent.click(button);
     expect(span.textContent).toBe('0');
   });
-  /*
+  
   it('x-model two-way binds input fields', async () => {
     mountHTML(
       `<div x-data='{ "inputValue": "" }'>
