@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 //import Stator, { nextTick } from '../../packages/statorjs/src/index';
-import Alpine, { nextTick } from 'alpinejs';
+import Stator from 'alpinejs';
 import waitFor from 'wait-for-expect';
 
 // Mock the startObservingMutations function
@@ -17,7 +17,7 @@ vi.mock('../../packages/statorjs/src/mutation', async () => {
 function mountHTML(html, data = {}) {
   document.body.innerHTML = html;
   //Stator.restart();
-  Alpine.start();
+  Stator.start();
 }
 
 beforeAll(() => {
