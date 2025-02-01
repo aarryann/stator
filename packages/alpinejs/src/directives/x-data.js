@@ -43,7 +43,7 @@ directive('data', (el, { expression }, { cleanup }) => {
 });
 
 interceptClone((from, to) => {
-  // Transfer over existing runtime Stator state from
+  // Transfer over existing runtime Stator state from /// STATOR CUSTOMIZED
   // the existing dom tree over to the new one...
   if (from._x_dataStack) {
     to._x_dataStack = from._x_dataStack;
@@ -51,7 +51,7 @@ interceptClone((from, to) => {
     // Set a flag to signify the new tree is using
     // pre-seeded state (used so x-data knows when
     // and when not to initialize state)...
-    to.setAttribute('data-has-alpine-state', true);
+    to.setAttribute('data-has-stator-state', true); /// STATOR CUSTOMIZED
   }
 });
 
@@ -63,5 +63,5 @@ function shouldSkipRegisteringDataDuringClone(el) {
   if (!isCloning) return false;
   if (isCloningLegacy) return true;
 
-  return el.hasAttribute('data-has-alpine-state');
+  return el.hasAttribute('data-has-stator-state'); /// STATOR CUSTOMIZED
 }

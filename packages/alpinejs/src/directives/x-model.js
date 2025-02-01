@@ -76,7 +76,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
   // Register the listener removal callback on the element, so that
   // in addition to the cleanup function, x-modelable may call it.
   // Also, make this a keyed object if we decide to reintroduce
-  // "named modelables" some time in a future Stator version.
+  // "named modelables" some time in a future Stator version. /// STATOR CUSTOMIZED
   if (!el._x_removeModelListeners) el._x_removeModelListeners = {};
   el._x_removeModelListeners['default'] = removeListener;
 
