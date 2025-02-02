@@ -27,7 +27,12 @@ export let test = function (name, template, callback, handleExpectedErrors = fal
 
 export let get = function (args) {
   const selectorText = args[0];
-  if (Array.isArray(selectorText) && selectorText.length > 1) {
+  if (Array.isArray(args) && args.length > 1) {
+    console.log(args);
+    //console.log(screen.getByText(selectorText[1]));
+
+    const selectorText = args[0];
+
     const getType = selectorText[0];
     if (getType === 'TEXT') {
       return screen.getByText(selectorText[1]);
@@ -37,7 +42,7 @@ export let get = function (args) {
       return document.querySelector(selectorText[1]);
     }
   } else {
-    return document.querySelector(selectorText);
+    return document.querySelector(args);
   }
 };
 

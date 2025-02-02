@@ -4,7 +4,7 @@ import Stator from '../../packages/statorjs/src/index';
 import waitFor from 'wait-for-expect';
 import { fireEvent } from '@testing-library/vue';
 import { parse } from '../../packages/statorjs/src/utils/evalsandbox';
-import { haveText, html, test } from '../utils';
+import { test, html } from '../utils';
 
 // Mock the startObservingMutations function
 /*
@@ -31,13 +31,7 @@ function evalSandboxed(expression, scope) {
   }
 }
 
-beforeAll(() => {
-  //document.body.innerHTML = '<div></div>';
-  //Stator.start();
-});
-
 afterEach(() => {
-  //Stator.destroyTree(document.body);
   document.body.innerHTML = '';
 });
 
@@ -54,6 +48,24 @@ describe('Stator.js Directives Tests', () => {
     evaluatedExpression = evalSandboxed(expression, scope);
     expect(evaluatedExpression.items.length).toBe(3);
   });
+
+  test(
+    'x-data test',
+    html` <div x-data='{ "foo": "bar", "count":1 }'>
+      <div x-data='{ "baz": "goo" }'>
+        <div x-data='{ "foo": baz }'>
+          <span id="bazSpan" x-text="foo">1</span>
+        </div>
+      </div>
+      <span id="barSpan" x-text="foo">2</span>
+    </div>`,
+    ({ get, t }) => {
+      const bazSpan = get('#bazSpan');
+      const barSpan = get('#barSpan');
+      expect(barSpan.textContent).toBe('bar');
+      expect(get(t`#bazSpan`)).toBe('goo');
+    }
+  );
 
   it('x-data nesting test', () => {
     mountHTML(`
