@@ -27,8 +27,7 @@ function evalSandboxed(expression, scope) {
   try {
     return parse(expression)(scope);
   } catch (e) {
-    throwExpressionError(expression, e);
-    return;
+    throw new Error(expression, e);
   }
 }
 
