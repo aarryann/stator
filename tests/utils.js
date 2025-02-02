@@ -7,12 +7,6 @@ export function html(strings) {
   return strings.raw[0];
 }
 
-export function doc(strings) {
-  document.body.innerHTML = html(strings);
-  if (Stator.restart) Stator.restart();
-  else Stator.start();
-}
-
 export function t(strings) {
   return ['TEXT', strings.raw[0]];
 }
@@ -51,5 +45,5 @@ function injectHtmlAndBootStator(template, callback, page, handleExpectedErrors 
   document.body.innerHTML = template;
   if (Stator.restart) Stator.restart();
   else Stator.start();
-  callback({ get, t, r, s });
+  Stator.nextTick(callback({ get, t, r, s }));
 }
