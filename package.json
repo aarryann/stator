@@ -18,6 +18,7 @@
   "description": "HTML state driven behavior framework",
   "devDependencies": {
     "@eslint/js": "^9.16.0",
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitest/coverage-v8": "^2.1.8",

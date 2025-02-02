@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
+import { describe, it, expect, afterEach, beforeAll, vi } from 'vitest';
 import Stator from '../../packages/statorjs/src/index';
 //import Stator from 'alpinejs';
 import waitFor from 'wait-for-expect';
-import { parse } from '../../packages/statorjs/src/utils/evalparser';
-import { toJson } from '../../packages/statorjs/src/utils/toJson';
+import { fireEvent } from '@testing-library/vue';
+import { parse } from '../../packages/statorjs/src/utils/evalsandbox';
+import { haveText, html, test } from '../utils';
 
 // Mock the startObservingMutations function
 /*
@@ -18,17 +19,26 @@ vi.mock('../../packages/statorjs/src/mutation', async () => {
 */
 function mountHTML(html, data = {}) {
   document.body.innerHTML = html;
-  Stator.restart();
-  //Stator.start();
+  if (Stator.restart) Stator.restart();
+  else Stator.start();
+}
+
+function evalSandboxed(expression, scope) {
+  try {
+    return parse(expression)(scope);
+  } catch (e) {
+    throwExpressionError(expression, e);
+    return;
+  }
 }
 
 beforeAll(() => {
-  document.body.innerHTML = '<div></div>';
-  Stator.start();
+  //document.body.innerHTML = '<div></div>';
+  //Stator.start();
 });
 
-beforeEach(() => {
-  Stator.destroyTree(document.body);
+afterEach(() => {
+  //Stator.destroyTree(document.body);
   document.body.innerHTML = '';
 });
 
@@ -36,19 +46,16 @@ describe('Stator.js Directives Tests', () => {
   /// TODO: Test stator:init, initializing and initialized from lifecycle.js
 
   it('x-data: test ngparser for object array', () => {
-    const scope = {};
-    const expression = '{"count": 1}';
-    let evaluatedExpression;
-    if (expression.startsWith('{')) {
-      evaluatedExpression = toJson(expression, scope);
-    } else {
-      evaluatedExpression = parse(expression)(scope);
-    }
+    let scope = {};
+    let expression = '{"count": 1}';
+    let evaluatedExpression = evalSandboxed(expression, scope);
+    expect(evaluatedExpression.count).toBe(1);
 
-    console.log(evaluatedExpression);
-    expect(JSON.stringify(evaluatedExpression)).toBe('{"count":1}');
+    expression = '{ "items": ["One", "Two", "Three"] }';
+    evaluatedExpression = evalSandboxed(expression, scope);
+    expect(evaluatedExpression.items.length).toBe(3);
   });
-  /*
+
   it('x-data nesting test', () => {
     mountHTML(`
     <div x-data='{ "foo": "bar", "count":1 }'>
@@ -187,8 +194,7 @@ describe('Stator.js Directives Tests', () => {
     await new Promise(r => setTimeout(r, 150));
     expect(count).toBe(1);
   });
-*/
-  /*********** 
+
   it('x-for loops through arrays', () => {
     mountHTML(
       `<div x-data='{ "items": ["One", "Two", "Three"] }'>
@@ -203,8 +209,7 @@ describe('Stator.js Directives Tests', () => {
     expect(paragraphs[1].textContent).toBe('Two');
     expect(paragraphs[2].textContent).toBe('Three');
   });
-  */
-  /*
+
   it('generates unique IDs using $id', () => {
     mountHTML(
       `<div x-data="{ id: $id('unique') }">
@@ -232,7 +237,7 @@ describe('Stator.js Directives Tests', () => {
     mountHTML(`
       <div x-data="{ number: 5 }">
         <div x-data="{ count: 0 }" x-modelable="count" x-model="number">
-          <button @click="count++">Increment</button>
+          <button @click="count=count+1">Increment</button>
         </div>
         Number: <span id="displayNumber" x-text="number"></span>
       </div>
@@ -240,11 +245,12 @@ describe('Stator.js Directives Tests', () => {
     const button = document.querySelector('button');
     const span = document.querySelector('#displayNumber');
 
-    await fireEvent.click(button);
-    await new Promise(r => setTimeout(r, 100));
-    expect(span.textContent).toBe('5');
+    button.click();
+    await waitFor(() => {
+      expect(span.textContent).toBe('5');
+    });
   });
-  
+
   it('Nested x-for loops render correctly', () => {
     mountHTML(
       `<div x-data='{ "lists": [{ "items": ["A", "B"] }, { "items": ["C", "D"] }] }'>
@@ -265,6 +271,7 @@ describe('Stator.js Directives Tests', () => {
     expect(paragraphs[2].textContent).toBe('C');
     expect(paragraphs[3].textContent).toBe('D');
   });
+
   it('x-on handles events', async () => {
     mountHTML(
       `<div x-data='{ "count": 0 }'>
@@ -277,10 +284,12 @@ describe('Stator.js Directives Tests', () => {
 
     expect(span.textContent).toBe('0');
 
-    await fireEvent.click(button);
-    expect(span.textContent).toBe('0');
+    button.click();
+    await waitFor(() => {
+      expect(span.textContent).toBe('1');
+    });
   });
-  
+
   it('x-model two-way binds input fields', async () => {
     mountHTML(
       `<div x-data='{ "inputValue": "" }'>
@@ -292,13 +301,16 @@ describe('Stator.js Directives Tests', () => {
     const output = document.querySelector('p');
 
     await fireEvent.update(input, 'Hello Stator!');
-    expect(output.textContent).toBe('Hello Stator!');
+    await waitFor(() => {
+      expect(output.textContent).toBe('Hello Stator!');
+    });
   });
+
   it('x-transition applies transitions on show/hide', async () => {
     mountHTML(
       `<div x-data='{ "visible": false }'>
          <p x-show="visible" x-transition>Transition Content</p>
-         <button @click="visible = !visible; i=i+1;">Toggle</button>
+         <button @click="visible = !visible;">Toggle</button>
        </div>`
     );
 
@@ -306,10 +318,12 @@ describe('Stator.js Directives Tests', () => {
     const button = document.querySelector('button');
 
     expect(paragraph.style.display).toBe('none');
-    await fireEvent.click(button);
-    await new Promise(r => setTimeout(r, 20)); // Adjust timeout to match transition duration
-    expect(paragraph.style.display).not.toBe('none');
+    button.click();
+    await waitFor(() => {
+      expect(paragraph.style.display).not.toBe('none');
+    });
   });
+
   it('handles class string transformations', async () => {
     Stator.store('test', {
       count: 0,
@@ -331,5 +345,4 @@ describe('Stator.js Directives Tests', () => {
     await new Promise(r => setTimeout(r, 10));
     expect(span.textContent).toBe('1');
   });
-  */
 });

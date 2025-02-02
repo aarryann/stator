@@ -1,8 +1,7 @@
 import { generateEvaluatorFromFunction, runIfTypeOfFunction } from './evaluatorNormal';
-import { parse } from './utils/evalparser';
+import { parse } from './utils/evalsandbox';
 import { closestDataStack, mergeProxies } from './scope';
 import { tryCatch } from './utils/error';
-import { toJson } from './utils/toJson';
 import { injectMagics } from './magics';
 
 export function ngEvaluator(el, expression) {
@@ -28,25 +27,9 @@ function generateDataStack(el) {
 
 function generateEvaluator(el, expression, dataStack) {
   return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
-    console.log(expression);
-    console.log(dataStack);
-    console.log(scope);
-    let completeScope = mergeProxies([scope, ...dataStack]);
-    //let flattenedScope = Object.assign({}, scope, ...[...dataStack].reverse());
+    const completeScope = mergeProxies([scope, ...dataStack]);
 
-    let evaluatedExpression;
-    try {
-      // Parse and evaluate the expression with expr-eval
-      const exprStr = expression.trim();
-      if (exprStr.startsWith('{')) {
-        evaluatedExpression = toJson(exprStr, completeScope);
-      } else {
-        evaluatedExpression = getParsed(expression)(completeScope);
-      }
-    } catch (e) {
-      throwExpressionError(el, expression, e);
-      return;
-    }
+    const evaluatedExpression = evalSandboxed(expression, completeScope);
 
     runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params, el);
   };
@@ -65,11 +48,14 @@ Read more about the Stator's CSP-friendly build restrictions here: https://stato
   );
 }
 
-let cache = {};
+const cache = {};
 
-function getParsed(expression) {
-  if (cache[expression]) {
-    return cache[expression];
+export function evalSandboxed(expression, scope) {
+  try {
+    const parsedExpression = cache[expression] || (cache[expression] = parse(expression));
+    return parsedExpression(scope);
+  } catch (e) {
+    throwExpressionError(expression, e);
+    return;
   }
-  return (cache[expression] = parse(expression));
 }
