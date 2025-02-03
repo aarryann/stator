@@ -1,4 +1,4 @@
-import Stator from '../packages/statorjs/src/index';
+import Stator from '../../packages/statorjs/src/index';
 import { screen, waitFor } from '@testing-library/dom';
 import { it } from 'vitest';
 

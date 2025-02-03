@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     // Specify your test directory
-    dir: './tests',
+    dir: './tests/vi',
     environment: 'jsdom', // Important for DOM testing
     globals: true, // Optional: global test utilities
 
