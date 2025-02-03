@@ -27,10 +27,6 @@
     "eslint": "^9.16.0",
     "globals": "^15.13.0",
     "jsdom": "^25.0.1",
-    "vitest": "^2.1.8",
-    "wait-for-expect": "^3.0.2"
-  },
-  "dependencies": {
-    "alpinejs": "^3.14.8"
+    "vitest": "^2.1.8"
   }
 }

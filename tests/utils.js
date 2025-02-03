@@ -1,54 +1,65 @@
 import Stator from '../packages/statorjs/src/index';
-import { screen } from '@testing-library/dom';
-import { describe, it, expect, afterEach, beforeAll, vi } from 'vitest';
+import { screen, waitFor } from '@testing-library/dom';
+import { it } from 'vitest';
 
 // This is an invisible template tag for enabling syntax highlighting of any string in most editors.
+
+export function mountHTML(strings) {
+  document.body.innerHTML = strings[0];
+  if (Stator.restart) Stator.restart();
+  else Stator.start();
+}
+
 export function html(strings) {
-  return strings.raw[0];
+  return strings[0];
 }
 
 export function t(strings) {
-  return ['TEXT', strings.raw[0]];
+  return ['TEXT', strings[0]];
 }
 
 export function r(strings) {
-  return ['ROLE', strings.raw[0]];
+  return ['ROLE', strings[0]];
 }
 
-export function s(strings) {
-  return ['SELECTOR', strings.raw[0]];
+export function a(strings) {
+  return ['SELECTORALL', strings[0]];
 }
 
-export let test = function (name, template, callback, handleExpectedErrors = false) {
-  it(name, () => {
-    injectHtmlAndBootStator(template, callback, undefined, handleExpectedErrors);
+export let test = function (name, htmlString, init, callback) {
+  it(name, async () => {
+    await bootstrapStator(htmlString, init, callback);
   });
 };
 
-export let get = function (args) {
-  const selectorText = args[0];
-  if (Array.isArray(args) && args.length > 1) {
-    console.log(args);
-    //console.log(screen.getByText(selectorText[1]));
+export let get = function (...args) {
+  const selectorToken = args[0];
+  if (Array.isArray(selectorToken) && selectorToken.length > 1) {
+    const selectorType = selectorToken[0];
 
-    const selectorText = args[0];
-
-    const getType = selectorText[0];
-    if (getType === 'TEXT') {
-      return screen.getByText(selectorText[1]);
-    } else if (getType === 'ROLE') {
-      return screen.getByText(selectorText[1], ...args.slice(1));
+    const selectorText = selectorToken[1];
+    if (selectorType === 'TEXT') {
+      return screen.getByText(selectorText);
+    } else if (selectorType === 'ROLE') {
+      return screen.getByText(selectorText, args[1]);
     } else {
-      return document.querySelector(selectorText[1]);
+      //SELECTORALL
+      return document.querySelectorAll(selectorText);
     }
   } else {
-    return document.querySelector(args);
+    return document.querySelector(selectorToken);
   }
 };
 
-function injectHtmlAndBootStator(template, callback, page, handleExpectedErrors = false) {
-  document.body.innerHTML = template;
+async function bootstrapStator(htmlString, init, callback) {
+  if (init && typeof init === 'function') {
+    init({ Stator });
+  }
+  document.body.innerHTML = htmlString;
+
   if (Stator.restart) Stator.restart();
   else Stator.start();
-  Stator.nextTick(callback({ get, t, r, s }));
+  if (callback && typeof callback === 'function') {
+    Stator.nextTick(await callback({ get, t, r, a, Stator, waitFor }));
+  }
 }
