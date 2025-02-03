@@ -2,3 +2,9 @@ node_modules
 *lock.yaml
 dist/
 coverage/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
