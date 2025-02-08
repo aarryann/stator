@@ -32,8 +32,14 @@ function bundleFile(pkg, file) {
         outfile: `packages/${pkg}/dist/${file.replace('.js', '.min.js')}`,
         bundle: true,
         minify: true,
+        treeShaking: true,
+        pure: ['console.log', 'debug'],
         platform: 'browser',
-        define: { CDN: 'true' }
+        define: {
+          CDN: 'true',
+          'process.env.NODE_ENV': '"production"',
+          DEBUG: 'false'
+        }
       }).then(() => {
         outputSize(pkg, `packages/${pkg}/dist/${file.replace('.js', '.min.js')}`);
       });

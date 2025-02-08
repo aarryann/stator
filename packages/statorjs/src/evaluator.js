@@ -1,4 +1,4 @@
-import { normalEvaluator, evaluate, evaluateLater, setEvaluator } from './evaluatorNormal';
+import { normalEvaluator, evaluate, evaluateLater, setEvaluator, dontAutoEvaluateFunctions } from './evaluatorNormal';
 import { ngEvaluator } from './evaluatorNg';
 
-export { normalEvaluator, ngEvaluator, evaluate, evaluateLater, setEvaluator };
+export { normalEvaluator, ngEvaluator, evaluate, evaluateLater, setEvaluator, dontAutoEvaluateFunctions };
