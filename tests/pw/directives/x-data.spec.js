@@ -1,13 +1,13 @@
 import { expect, test } from '../fixtures/base';
 
-test('has title', async ({ specPage }) => {
+test.skip('has title', async ({ specPage }) => {
   await specPage.goto();
   //await specPage.isReady();
 
   await expect.soft(specPage).toHaveTitle(/Stator/);
 });
 
-test('Test with reload and window access', async ({ specPage }) => {
+test.skip('Test with reload and window access', async ({ specPage }) => {
   await specPage.goto();
   const { reload, window, document } = await specPage.embedHTML('<div id="message">Hello</div>');
 

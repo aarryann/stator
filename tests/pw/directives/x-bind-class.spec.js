@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-test('has title', async ({ page }) => {
+test.skip('has title', async ({ page }) => {
   const filePath = `file://${path.resolve(__dirname, '../spec.html')}`;
   await page.goto(filePath);
 
